@@ -186,23 +186,3 @@
     play();
   }
 })();
-
-// Copy buttons
-for (const block of document.querySelectorAll('[data-copy]')) {
-  const button = block.querySelector('.copy');
-  const code = block.querySelector('code');
-  if (!button || !code) continue;
-  button.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(code.textContent.trim());
-      button.textContent = 'Copied';
-      button.classList.add('done');
-    } catch {
-      button.textContent = 'Select and copy';
-    }
-    setTimeout(() => {
-      button.textContent = 'Copy';
-      button.classList.remove('done');
-    }, 1600);
-  });
-}

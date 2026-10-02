@@ -3,9 +3,16 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node --check script.js && node --check scripts/build.mjs"
+    "check": "node --check script.js && node --check copy.js && node --check scripts/build.mjs && node --check scripts/guide.mjs && node --check scripts/refresh-guide.mjs",
+    "test": "node --test tests/guide.test.mjs",
+    "test:browser": "playwright test",
+    "refresh:guide": "node scripts/refresh-guide.mjs"
   },
   "engines": {
     "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "markdown-it": "15.0.2"
   }
 }

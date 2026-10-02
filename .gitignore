@@ -5,3 +5,6 @@ dist/
 .env.*
 .dev.vars*
 .deployment-private/
+test-results/
+playwright-report/
+guide/.refresh-stage/

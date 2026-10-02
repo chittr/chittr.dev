@@ -1,0 +1,17 @@
+{
+  "repository": "chittr/chittr",
+  "tag": "v0.1.0",
+  "commit": "a55a8c5920d10e9b4cb1bf473b82906143b5eddb",
+  "files": {
+    "LICENSE": "c1c71b45353a5fa04caac9b3456230fa8fa92104",
+    "PRIVACY.md": "bb2aa8ac3ac247a0541a2fddfafff4d6e6e17992",
+    "README.md": "c47d476d8dcd034616cd8070297d9fee5c5a7fd7",
+    "THIRD_PARTY_NOTICES.md": "ff195c035cf2a75514c383e8dede03ec7506a9ad",
+    "docs/architecture.md": "5ba1299f3f00b4f35fac7b4d82c48c0d83acc1a9",
+    "docs/compatibility.md": "9f82cf67837de822de862d2161fd72c3e2cc0b3c",
+    "docs/installation.md": "cc7227523d516a114d2c0b9bd00118a181c8d20f",
+    "examples/project.yaml": "905d27d207508b12532a66206bb97f5b2e8ea049",
+    "examples/three-providers.yaml": "e90ab065e60fe2133801649a6dd6fc855c54eed0",
+    "examples/user.yaml": "848dc8f8829a0c9da16b33ec192c56028e492d26"
+  }
+}
