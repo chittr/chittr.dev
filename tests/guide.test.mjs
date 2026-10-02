@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, cp, readFile, writeFile, readdir, rm, symlink } from 'node:fs/promises';
+import { mkdtemp, cp, readFile, writeFile, readdir, rm, symlink, mkdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { deflateSync } from 'node:zlib';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,12 +40,91 @@ test('guide contains release text and complete examples, omits developer command
   assert.match(pages.usage, /resumed Codex thread, a mixed room configuration/);
   assert.match(pages.usage, /Changed provider\/model\/effort\/custom instructions also start a fresh session/);
   assert.match(pages.usage, /requires <code>\/reconnect @agent<\/code>/);
+  assert.match(pages.usage, /Stop does not roll back file or command side effects/);
+  assert.match(pages.usage, /Failed and interrupted deliveries still need <code>\/retry<\/code>/);
+  assert.match(pages.index, /chittr resume --web/);
+  assert.match(pages.usage, /Check last action/);
+  for (const id of ['commands', 'keyboard']) {
+    const section = pages.usage.split(`<section id="${id}"`)[1].split('</section>')[0];
+    assert.match(section, /<table>/);
+    assert.match(section, /<thead>/);
+    assert.match(section, /<tbody>/);
+  }
+  assert.doesNotMatch(pages.usage, /<p>\|/);
   assert.ok(pages.usage.indexOf('id="compaction"') < pages.usage.indexOf('id="commands"'));
   for (const html of Object.values(pages)) {
     assert.match(html, /Documented release/);
     assert.match(html, new RegExp(map.commit));
     assert.doesNotMatch(html, /blob\/main\/|npm run test:|#85|#105|<h[1-6][^>]*>Development/);
   }
+});
+
+// Import synthetic Git objects as test data. No network, commits through a user's
+// identity, hooks or global Git configuration are needed to make this fixture.
+async function releaseFixture(directory) {
+  execFileSync('git', ['init', '--quiet', directory]);
+  async function object(type, data) {
+    const bytes = Buffer.concat([Buffer.from(`${type} ${data.length}\0`), data]);
+    const sha = createHash('sha1').update(bytes).digest('hex');
+    const dir = join(directory, '.git/objects', sha.slice(0, 2));
+    await mkdir(dir, { recursive: true });
+    await writeFile(join(dir, sha.slice(2)), deflateSync(bytes));
+    return sha;
+  }
+  const entries = {};
+  for (const [path, text] of Object.entries(sources)) {
+    const parts = path.split('/');
+    let parent = entries;
+    for (const part of parts.slice(0, -1)) parent = parent[part] ??= {};
+    parent[parts.at(-1)] = Buffer.from(text);
+  }
+  async function treeObject(entries) {
+    const rows = [];
+    for (const name of Object.keys(entries).sort()) {
+      const value = entries[name];
+      const blob = Buffer.isBuffer(value);
+      const sha = blob ? await object('blob', value) : await treeObject(value);
+      rows.push(Buffer.from(`${blob ? '100644' : '40000'} ${name}\0`), Buffer.from(sha, 'hex'));
+    }
+    return object('tree', Buffer.concat(rows));
+  }
+  const tree = await treeObject(entries);
+  const sha = await object('commit', Buffer.from(`tree ${tree}\nauthor Fixture <fixture@example.invalid> 1 +0000\ncommitter Fixture <fixture@example.invalid> 1 +0000\n\nSynthetic release fixture\n`));
+  await writeFile(join(directory, '.git/refs/tags', map.tag), sha + '\n');
+  return sha;
+}
+
+test('refresh CLI verifies the release and fails without replacing snapshots', async () => {
+  const fixture = await mkdtemp(join(tmpdir(), 'chittr-refresh-test-'));
+  try {
+    const app = join(fixture, 'app');
+    const sha = await releaseFixture(app);
+    await cp(join(root, 'scripts'), join(fixture, 'scripts'), { recursive: true });
+    await cp(join(root, 'guide'), join(fixture, 'guide'), { recursive: true });
+    await symlink(join(root, 'node_modules'), join(fixture, 'node_modules'));
+    const fixtureMap = { ...map, commit: sha };
+    const mapPath = join(fixture, 'guide/source-map.json');
+    await writeFile(mapPath, JSON.stringify(fixtureMap));
+    const refresh = () => spawnSync(process.execPath, ['scripts/refresh-guide.mjs', '--checkout', app], { cwd: fixture, encoding: 'utf8' });
+    let result = refresh(); assert.equal(result.status, 0, result.stderr);
+    const saved = await tree(join(fixture, 'guide'));
+    assert.equal(JSON.parse(saved['provenance.json']).commit, sha);
+    result = refresh(); assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(await tree(join(fixture, 'guide')), saved);
+    for (const fault of ['pin', 'heading', 'missing-source']) {
+      const changed = structuredClone(fixtureMap);
+      if (fault === 'pin') changed.commit = '0'.repeat(40);
+      else if (fault === 'heading') changed.pages[0].sections[0].passages[0].heading = '## Missing heading';
+      else changed.pages[0].sections[0].passages[0].file = 'docs/absent.md';
+      await writeFile(mapPath, JSON.stringify(changed));
+      result = refresh(); assert.notEqual(result.status, 0, fault);
+      assert.match(result.stderr, /nothing replaced|selection moved or missing|Unexpected guide source/);
+      const after = await tree(join(fixture, 'guide'));
+      delete after['source-map.json'];
+      const before = { ...saved }; delete before['source-map.json'];
+      assert.deepEqual(after, before, `${fault} changed saved sources`);
+    }
+  } finally { await rm(fixture, { recursive: true, force: true }); }
 });
 
 test('missing or moved source selections fail instead of producing partial documentation', () => {

@@ -41,11 +41,16 @@ for (const colorScheme of ['light', 'dark']) for (const width of [375, 1280]) {
     await page.getByRole('link', { name: 'Home', exact: true }).click();
     await expect(page.locator('#configure')).toBeAttached();
     await page.locator('[data-copy] button').first().click();
+    await expect(page.locator('[data-copy] button').first()).toHaveClass(/done/);
     expect(await page.evaluate(() => window.copied)).toContain('npm install -g @chittr/cli');
   });
 }
 
 test('keyboard focus, denied clipboard, direct section URLs and no JavaScript', async ({ page, browser }) => {
+  await page.goto('/guide/usage/');
+  await expect(page.locator('#commands table thead')).toContainText('Command');
+  await expect(page.locator('#keyboard table thead')).toContainText('Key');
+  await expect(page.locator('#controls')).toContainText('Stop does not roll back');
   await page.goto('/guide/configuration/#trusted-commands');
   await expect(page.locator('#trusted-commands')).toBeInViewport();
   await page.goto('/guide/');

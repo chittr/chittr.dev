@@ -10,20 +10,6 @@
       "intro": "Install Chittr, choose your agents and open your first room.",
       "sections": [
         {
-          "id": "install",
-          "title": "Install Chittr",
-          "passages": [
-            {
-              "file": "README.md",
-              "start": 17,
-              "end": 31,
-              "heading": "## Install",
-              "first": "Install Node.js and at least one of the provider CLIs below, then sign in with",
-              "last": "```"
-            }
-          ]
-        },
-        {
           "id": "requirements",
           "title": "Before you start",
           "passages": [
@@ -42,6 +28,20 @@
               "heading": "# Install and recover Chittr",
               "first": "The first-preview rehearsal passed on an Apple Silicon Mac running macOS 26.2",
               "last": "Quality suite and broader platform matrix are skipped for this preview."
+            }
+          ]
+        },
+        {
+          "id": "install",
+          "title": "Install Chittr",
+          "passages": [
+            {
+              "file": "README.md",
+              "start": 17,
+              "end": 31,
+              "heading": "## Install",
+              "first": "Install Node.js and at least one of the provider CLIs below, then sign in with",
+              "last": "```"
             }
           ]
         },
@@ -66,10 +66,10 @@
             {
               "file": "README.md",
               "start": 49,
-              "end": 52,
+              "end": 54,
               "heading": "## Browser interface",
               "first": "```sh",
-              "last": "```"
+              "last": "This starts a new chat, runs a local server, and opens your default browser. If opening the browser fails, use the link printed in the terminal. The browser uses the same workspace, merged YAML, CLI subscriptions, permissions, and saved sessions as terminal chat. `chittr resume --web` selects a saved chat in the terminal before opening it in the browser; `chittr resume ID --web` opens it directly. `--state-dir PATH` also works with `--web`. First-time configuration still uses the terminal setup prompt."
             }
           ]
         },
@@ -206,18 +206,18 @@
             {
               "file": "README.md",
               "start": 230,
-              "end": 244,
+              "end": 242,
               "heading": "## Conversation and terminal keyboard",
               "first": "Send ordinary text to invite every enabled agent to consider it. Prefix a message with `@codex`, `@claude`, or multiple names to direct it. `@human` addresses only you. Directed messages remain public context. Mentions later in the body do not route messages.",
-              "last": "| Key                 | Action                                                                     |"
+              "last": "The participant strip shows connection state, considering/replying/tool activity, explicit waiting for you, pauses, and queued or unresolved work. Delivery lines distinguish queued, sent, received, contributed, passed, interrupted, and failed. Receipt is a provider acknowledgment, not a claim about understanding."
             },
             {
               "file": "README.md",
               "start": 270,
-              "end": 278,
+              "end": 276,
               "heading": "## Controls and recovery",
               "first": "Pins are saved with each conversation and survive resume. Pin any human or agent message with `/pin #m1`, remove it with `/unpin #m1`, and use `/pins` to read all pins in conversation order. The browser also has a Pin button on each message and a Pinned messages list with copy, unpin, and go-to-message controls. Pinning and viewing pins do not send messages to agents or change their context.",
-              "last": "| Command                            | Action                                                                             |"
+              "last": "Decision questions require two to six distinct choices; free-text questions have no choices and show their input immediately. Choices that look like commands or @mentions remain literal answer text. Answering never changes YAML permissions or releases pauses. Older saved questions keep their historical answers and use the original message as their prompt. Remaining old questions require explicit final submission. Unpublished drafts and transient waiting flags are not converted into question records."
             }
           ]
         },
@@ -227,10 +227,18 @@
           "passages": [
             {
               "file": "README.md",
-              "start": 305,
+              "start": 62,
+              "end": 62,
+              "heading": "## Browser interface",
+              "first": "Use the room buttons to pause, stop, continue, or quit. Each agent's `\u00b7\u00b7\u00b7` button opens its individual controls. Failed and interrupted deliveries have retry buttons; capped exchanges offer additional follow-up turns. All existing slash commands also work. The sidebar opens saved conversations and effective configuration. Configuration changes still require YAML edits and an idle reload. Restored sessions start active; queued messages run as agents connect, while failed and interrupted deliveries still require an explicit retry.",
+              "last": "Use the room buttons to pause, stop, continue, or quit. Each agent's `\u00b7\u00b7\u00b7` button opens its individual controls. Failed and interrupted deliveries have retry buttons; capped exchanges offer additional follow-up turns. All existing slash commands also work. The sidebar opens saved conversations and effective configuration. Configuration changes still require YAML edits and an idle reload. Restored sessions start active; queued messages run as agents connect, while failed and interrupted deliveries still require an explicit retry."
+            },
+            {
+              "file": "README.md",
+              "start": 303,
               "end": 305,
               "heading": "## Controls and recovery",
-              "first": "Each human message starts an exchange with eight shared follow-up turns by default. Initial replies to the human are exempt. Follow-up passes and dispatched failed/interrupted attempts count. A batched turn charges each represented exchange once. An exhausted exchange parks while independent work continues; ordinary `/continue` does not replenish its allowance.",
+              "first": "Room and participant pauses are independent. Continuing one participant does not clear a room pause. After a failure, use `/reconnect @name`, `/retry #message @name`, then `/continue @name` (and `/continue` if the room is paused). Completed responses are never automatically retried. Stop does not roll back file or command side effects.",
               "last": "Each human message starts an exchange with eight shared follow-up turns by default. Initial replies to the human are exempt. Follow-up passes and dispatched failed/interrupted attempts count. A batched turn charges each represented exchange once. An exhausted exchange parks while independent work continues; ordinary `/continue` does not replenish its allowance."
             }
           ]
@@ -264,10 +272,10 @@
             {
               "file": "README.md",
               "start": 64,
-              "end": 64,
+              "end": 66,
               "heading": "## Browser interface",
               "first": "Paste, drop, or select PNG images with **Attach images**. The host accepts up to four images, 1 MiB each and 3 MiB total. Pending uploads show filenames; accepted images show previews. Remove or retry failed uploads before sending. Captions are optional, including replies. Leading `@names` still select recipients. When a PNG is staged, the browser and terminal show the current `not_observed` or `unsupported` status for resolved recipients before send. The warning does not block sending or predict whether a message will be attempted or queued. Previews confirm storage, while the delivery status reports whether a provider could receive the images.",
-              "last": "Paste, drop, or select PNG images with **Attach images**. The host accepts up to four images, 1 MiB each and 3 MiB total. Pending uploads show filenames; accepted images show previews. Remove or retry failed uploads before sending. Captions are optional, including replies. Leading `@names` still select recipients. When a PNG is staged, the browser and terminal show the current `not_observed` or `unsupported` status for resolved recipients before send. The warning does not block sending or predict whether a message will be attempted or queued. Previews confirm storage, while the delivery status reports whether a provider could receive the images."
+              "last": "Staged and sent images are saved as host references. Reload or reopen the current browser link to restore them; after restarting the host, open its new link to authenticate image reads. **View image** opens a larger view, and Escape closes it. **Check last action** retries an unknown attachment-send result using its saved identity, including after restart. An interrupted upload can be retried with the same file; the browser retains its operation identity but does not save the image bytes. See [image limitations](docs/installation.md#provider-and-image-limits) for this preview."
             },
             {
               "file": "docs/installation.md",
@@ -305,10 +313,10 @@
           "passages": [
             {
               "file": "README.md",
-              "start": 309,
+              "start": 307,
               "end": 313,
               "heading": "## Controls and recovery",
-              "first": "Sessions live under `~/.agents/chittr/sessions/<workspace-id>/<session-id>/`; `--state-dir PATH` overrides this for both new chats and resume. Snapshots preserve the transcript, outcomes, tool-activity summaries, queue, cap accounting, provider session references, and unsent draft. Credentials stay with the CLIs. One live instance owns each workspace within a storage location.",
+              "first": "Each `chittr` launch starts a new room. Use `chittr resume` to choose a saved conversation for this directory, or `chittr resume ID` to open one directly. Resuming clears saved room and participant pauses, reconnects enabled agents, and runs eligible queued messages without `/continue`. Failed and interrupted deliveries still need `/retry`; follow-up limits and disabled-agent settings remain in force. This also applies to `--session ID`, web resume, and opening a saved conversation with `/sessions ID`. Cancelling the picker starts no agents and leaves saved chats unchanged; an empty history suggests starting a new chat. The existing `--new` and `--session ID` flags remain supported.",
               "last": "Grok keeps its native process for consecutive turns. On reconnect or application restart, it starts fresh and discloses restoration from the saved public conversation. Its temporary native profile is removed on close. Grok uses its existing native auth-file location. Your normal Grok settings, hooks and plugins are not loaded into this profile. Put custom guidance in Chittr's YAML instruction sources."
             }
           ]
@@ -333,10 +341,10 @@
           "passages": [
             {
               "file": "README.md",
-              "start": 246,
+              "start": 244,
               "end": 266,
               "heading": "## Conversation and terminal keyboard",
-              "first": "| Enter               | Send; accept an open completion first                                      |",
+              "first": "| Key                 | Action                                                                     |",
               "last": "Type `./` in either composer to open the file explorer at the launch directory. An opening backtick before `./` also works. Keep typing to filter, use Up/Down to choose an entry, and press Enter or Tab to open a folder or insert a file path. You can also click an entry. Selecting a file wraps the entire path in backticks and adds a space after the closing backtick. Folder selections stay open for browsing, with spaces in folder names quoted automatically. Left returns to the parent folder in the CLI; use the Up button or Alt+Up in the web UI. Escape closes the explorer. Files outside the launch directory and symlinks are excluded."
             }
           ]
@@ -347,10 +355,10 @@
           "passages": [
             {
               "file": "README.md",
-              "start": 280,
+              "start": 278,
               "end": 301,
               "heading": "## Controls and recovery",
-              "first": "| `/pause [@agent]`                  | Finish active turns, then hold new turns                                           |",
+              "first": "| Command                            | Action                                                                             |",
               "last": "| `/quit`                            | Stop, save, and exit                                                               |"
             }
           ]
