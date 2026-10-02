@@ -28,7 +28,7 @@
       </a>
       <nav aria-label="Page">
         <a href="#room">How a room works</a>
-        <a href="#configure">Configure</a>
+        <a href="/guide/">Guide</a>
         <a href="#install">Install</a>
         <a href="https://github.com/chittr/chittr" rel="noopener">GitHub</a>
       </nav>
@@ -218,169 +218,35 @@ chittr</code></pre>
 
       <section id="configure" class="section">
         <h2>Named peers, your config</h2>
-        <div class="split">
-          <div class="prose">
-            <p>
-              Config is YAML, merged from your home directory and then the project's
-              <code>.agents/chittr.yaml</code>. Each key under <code>agents</code> is both the
-              visible name and the handle you address it with. Two Codex participants can use
-              different models and share a room with Claude.
-            </p>
-            <p>
-              The key is also the participant's identity in saved history, so a renamed key is a new
-              participant. Model and effort are optional and pass straight through to the CLI.
-              Chittr never translates one provider's vocabulary into another's.
-            </p>
-            <p>
-              Give a participant its own standing instructions inline or from a file. Provider
-              guidance and the room protocol stay in place underneath.
-            </p>
-          </div>
-          <pre class="yaml"><code><span class="k">version</span>: 1
-<span class="k">agents</span>:
-  <span class="k a-codex">astra</span>:
-    <span class="k">provider</span>: codex
-    <span class="k">model</span>: gpt-6-astra
-    <span class="k">effort</span>: high
-  <span class="k a-codex">sol</span>:
-    <span class="k">provider</span>: codex
-    <span class="k">model</span>: gpt-5.6-sol
-    <span class="k">effort</span>: medium
-  <span class="k a-claude">claude</span>:
-    <span class="k">provider</span>: claude
-    <span class="k">instructions</span>:
-      <span class="k">sources</span>:
-        - <span class="k">file</span>: instructions/review.md</code></pre>
-        </div>
-
-        <div class="table-wrap">
-          <table class="providers">
-            <caption>
-              Providers and the effort levels each accepts
-            </caption>
-            <thead>
-              <tr>
-                <th>Provider</th>
-                <th>Executable</th>
-                <th>Signs in with</th>
-                <th>Effort levels</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><span class="tag" data-agent="codex">codex</span></td>
-                <td><code>codex</code></td>
-                <td>ChatGPT</td>
-                <td>none, minimal, low, medium, high, xhigh, max, ultra</td>
-              </tr>
-              <tr>
-                <td><span class="tag" data-agent="claude">claude</span></td>
-                <td><code>claude</code></td>
-                <td>Claude</td>
-                <td>low, medium, high, xhigh, max</td>
-              </tr>
-              <tr>
-                <td><span class="tag" data-agent="grok">grok</span></td>
-                <td><code>grok</code></td>
-                <td>Grok Build subscription</td>
-                <td>none, minimal, low, medium, high, xhigh, max</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <p class="wide">Choose each participant's provider, model and instructions in YAML.
+          User settings load first, then the launch directory's <code>.agents/chittr.yaml</code>.
+          Room settings merge field by field. A project's <code>agents</code> section replaces
+          the fallback roster entirely.</p>
+        <p><a href="/guide/configuration/#user-config">Configure your room →</a></p>
       </section>
 
       <section class="section">
         <h2>Local by default, permissions by config</h2>
-        <div class="split">
-          <div class="prose">
-            <p>
-              A new room can discuss and read files in the launch directory. That is all. Edits,
-              shell commands and task networking are three separate grants in the project config,
-              and they apply to the whole room. There are no per-agent overrides and no temporary
-              approvals in chat. An agent that needs something it doesn't have says so and asks you
-              to change the YAML.
-            </p>
-            <p>
-              File and command tools run inside a deny-default macOS sandbox with real-path and
-              symlink checks. Skills stay read-only even when edits are on. Provider sign-in traffic
-              is separate from task networking, so agents keep working with everything off.
-            </p>
-            <p>
-              The browser server binds to <code>127.0.0.1</code> on a random port with a per-launch
-              token, checks Host and Origin, and serves only its own bundled assets. Sessions are
-              saved as mode-0600 files under your profile. Credentials stay with the CLIs.
-            </p>
-          </div>
-          <div class="perm">
-            <pre class="yaml"><code><span class="k">version</span>: 1
-<span class="k">permissions</span>:
-  <span class="k">edits</span>: <span class="off">false</span>
-  <span class="k">commands</span>: <span class="off">false</span>
-  <span class="k">network</span>: <span class="off">false</span></code></pre>
-            <ul class="perm-list">
-              <li><b>edits</b> Write inside the launch directory.</li>
-              <li>
-                <b>commands</b> Run shell commands in a sandboxed worker with a private temp dir.
-              </li>
-              <li><b>network</b> Fetch URLs from task tools.</li>
-            </ul>
-            <p class="fine">
-              Change a grant, then run <code>/reload</code> while the room is idle.
-            </p>
-          </div>
-        </div>
+        <p class="wide">Edits, commands and task networking start disabled. Grants in user or
+          project configuration apply to the whole room. Commands run sandboxed unless you opt
+          into trusted execution with all three grants enabled. Persistent trust belongs in your
+          user config; project config cannot grant it.</p>
+        <p class="wide">Trusted commands have your account's access, including access outside
+          the workspace and writes to skill bundles. File tools retain their workspace and
+          read-only skill restrictions.</p>
+        <p><a href="/guide/configuration/#permissions">Permissions and trusted commands →</a></p>
       </section>
 
       <section class="section">
         <h2>Controls that keep the room yours</h2>
-        <p class="wide">
-          Pause finishes active turns and holds new ones. Stop interrupts. Both work on one agent or
-          the whole room, and neither rolls back what an agent has already done.
-        </p>
-        <div class="table-wrap">
-          <table class="commands">
-            <tbody>
-              <tr>
-                <td><code>/pause [@agent]</code></td>
-                <td>Finish active turns, then hold new ones</td>
-              </tr>
-              <tr>
-                <td><code>/stop [@agent]</code></td>
-                <td>Interrupt active turns and hold new ones</td>
-              </tr>
-              <tr>
-                <td><code>/continue [@agent]</code></td>
-                <td>Release a pause; reconnect stopped agents</td>
-              </tr>
-              <tr>
-                <td><code>/continue #m1</code></td>
-                <td>Give a parked exchange another eight follow-up turns</td>
-              </tr>
-              <tr>
-                <td><code>/retry #m1 @agent</code></td>
-                <td>Queue a failed or interrupted response again</td>
-              </tr>
-              <tr>
-                <td><code>/participants</code></td>
-                <td>Provider, model, effort, context usage, status and queues for every agent</td>
-              </tr>
-              <tr>
-                <td><code>/reload</code></td>
-                <td>Validate and apply config while everyone is idle</td>
-              </tr>
-              <tr>
-                <td><code>/sessions [ID]</code></td>
-                <td>List or open saved conversations for this directory</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="wide">
-          Every launch starts a new chat and keeps the old ones. <code>chittr resume</code> lists
-          saved conversations for the current directory. Claude picks up its native session; the
-          others restore from the shared transcript and say so.
-        </p>
+        <p class="wide">Pause finishes active turns and holds new ones. Stop interrupts.
+          Both work on one agent or the whole room, and neither rolls back completed effects.</p>
+        <p class="wide">Every launch starts a new chat and keeps the old ones.
+          <code>chittr resume</code> lists saved conversations for the launch directory.
+          Native session recovery differs by provider and by changes to your settings.</p>
+        <p><a href="/guide/usage/#controls">Room controls</a> ·
+          <a href="/guide/usage/#sessions">Saved conversations and recovery</a> ·
+          <a href="/guide/usage/#commands">Command reference</a></p>
       </section>
 
       <section id="install" class="section">
@@ -486,5 +352,6 @@ chittr --web</code></pre>
     </footer>
 
     <script src="script.js" defer></script>
+    <script src="copy.js" defer></script>
   </body>
 </html>
