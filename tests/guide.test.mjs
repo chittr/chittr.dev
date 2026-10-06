@@ -29,6 +29,11 @@ test('built site has only the public allowlist and stable output', async () => {
   execFileSync(process.execPath, ['scripts/build.mjs'], { cwd: root });
   assert.deepEqual(await tree(join(root, 'dist')), first);
   assert.equal(first['guide/LICENSE.txt'], sources.LICENSE);
+  // GitHub appears only as each guide page's link to the documented release.
+  assert.doesNotMatch(first['index.html'], /github\.com/);
+  for (const page of ['guide/index.html', 'guide/configuration/index.html', 'guide/usage/index.html']) {
+    assert.deepEqual(first[page].match(/https:\/\/github\.com\/[^"]*/g), [`https://github.com/${map.repository}/tree/${map.commit}`], page);
+  }
 });
 
 test('guide pages keep their caveats and tables, and cite no app source files', () => {
