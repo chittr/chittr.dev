@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build.mjs",
-    "check": "node --check script.js && node --check copy.js && node --check scripts/build.mjs && node --check scripts/guide.mjs && node --check scripts/refresh-guide.mjs",
+    "check": "node --check script.js && node --check copy.js && node --check analytics.js && node --check scripts/build.mjs && node --check scripts/guide.mjs && node --check scripts/refresh-guide.mjs",
     "test": "node --test tests/guide.test.mjs",
     "test:browser": "playwright test",
     "refresh:guide": "node scripts/refresh-guide.mjs"

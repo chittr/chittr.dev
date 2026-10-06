@@ -9,7 +9,7 @@ const pages = map.pages.map((page) => [page, renderGuide(map, page, site)]);
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 // Only public assets and rendered documentation. Never publish source snapshots or tooling.
-for (const name of ['index.html', 'styles.css', 'script.js', 'copy.js', 'guide.css', 'assets']) {
+for (const name of ['index.html', 'styles.css', 'script.js', 'copy.js', 'analytics.js', 'guide.css', 'assets']) {
   await cp(new URL(name, root), new URL(name, output), { recursive: true });
 }
 for (const [page, html] of pages) {
