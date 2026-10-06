@@ -25,7 +25,10 @@ async function tree(directory, prefix = '') {
 test('built site has only the public allowlist and stable output', async () => {
   execFileSync(process.execPath, ['scripts/build.mjs'], { cwd: root });
   const first = await tree(join(root, 'dist'));
-  assert.deepEqual(Object.keys(first).sort(), ['assets/chittr.svg', 'copy.js', 'guide.css', 'guide/LICENSE.txt', 'guide/configuration/index.html', 'guide/index.html', 'guide/usage/index.html', 'index.html', 'script.js', 'styles.css'].sort());
+  assert.deepEqual(Object.keys(first).sort(), ['analytics.js', 'assets/chittr.svg', 'copy.js', 'guide.css', 'guide/LICENSE.txt', 'guide/configuration/index.html', 'guide/index.html', 'guide/usage/index.html', 'index.html', 'script.js', 'styles.css'].sort());
+  for (const page of Object.keys(first).filter((name) => name.endsWith('.html'))) {
+    assert.match(first[page].split('</head>')[0], /<script src="\/?analytics\.js" async><\/script>/, page);
+  }
   execFileSync(process.execPath, ['scripts/build.mjs'], { cwd: root });
   assert.deepEqual(await tree(join(root, 'dist')), first);
   assert.equal(first['guide/LICENSE.txt'], sources.LICENSE);

@@ -2,7 +2,7 @@
 
 Public homepage for [chittr.dev](https://chittr.dev). The CLI and its browser interface live in [chittr/chittr](https://github.com/chittr/chittr).
 
-This is a static site with no browser runtime dependencies. The guide uses a pinned Markdown renderer at build time. `npm run build` stages the homepage assets, three rendered guide pages and the app documentation licence through an explicit publication allowlist. Raw source snapshots, provenance and tooling stay out of `dist/`.
+This is a static site with no browser runtime dependencies. Every page loads `analytics.js`, which adds Google Analytics on `chittr.dev` and `www.chittr.dev` only, so local previews, tests and branch deployments record nothing. The guide uses a pinned Markdown renderer at build time. `npm run build` stages the homepage assets, three rendered guide pages and the app documentation licence through an explicit publication allowlist. Raw source snapshots, provenance and tooling stay out of `dist/`.
 
 ## Local preview
 

@@ -63,7 +63,7 @@ This starts a new chat, runs a local server and opens your browser. If the brows
 
 ## What leaves your Mac {#privacy}
 
-Chittr has no hosted account, analytics or telemetry. It talks to the provider CLIs you installed.
+The Chittr app has no hosted account, analytics or telemetry. It talks to the provider CLIs you installed.
 
 - Providers receive the conversation, your instructions, any images you send, and any file, skill or tool content their agents read.
 - An `@agent` message isn't private. Every agent in the room sees it.

@@ -76,3 +76,23 @@ test('keyboard focus, denied clipboard, direct section URLs and no JavaScript', 
   }
   await context.close();
 });
+
+test('analytics loads only on the production hosts', async ({ page }) => {
+  const requests = [];
+  page.on('request', (request) => requests.push(request.url()));
+  for (const route of ['/', '/guide/']) {
+    await page.goto(route);
+    expect(await page.evaluate(() => typeof window.gtag)).toBe('undefined');
+  }
+  expect(requests.filter((url) => url.includes('googletagmanager'))).toEqual([]);
+  // Serve the built site as chittr.dev, with the tag stubbed, so nothing leaves this machine.
+  await page.route('**/*', (route) => route.abort());
+  await page.route('https://www.googletagmanager.com/**', (route) => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('https://chittr.dev/**', (route) => {
+    const { pathname } = new URL(route.request().url());
+    return route.fulfill({ path: `dist${pathname.endsWith('/') ? `${pathname}index.html` : pathname}` });
+  });
+  await page.goto('https://chittr.dev/guide/');
+  await expect.poll(() => requests.includes('https://www.googletagmanager.com/gtag/js?id=G-0TB5SDN8SH')).toBe(true);
+  expect(await page.evaluate(() => window.dataLayer.map((entry) => [...entry]))).toContainEqual(['config', 'G-0TB5SDN8SH']);
+});
