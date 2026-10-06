@@ -8,6 +8,37 @@ Launch in the exact directory agents should inspect. For example, launching in `
 
 `chittr` always starts a new chat and preserves previous conversations. Run `chittr resume` to browse saved chats from this exact directory, most recently updated first. Use ↑/↓ to select, Enter to resume, or Escape to cancel. Type to search conversation previews or session IDs; PgUp/PgDn and Home/End navigate longer lists. `chittr resume ID` opens a specific saved chat directly.
 
+For an npm-global installation, `chittr update` updates the running package to
+npm's latest release without starting a room. Close all other rooms and make a
+complete backup first. See [upgrade and roll back](installation.md#upgrade-and-roll-back)
+for installation scope, older releases and recovery. The command accepts no room
+options or extra arguments; `chittr update --help` and `--version` show CLI information.
+
+## Launch with a shared brief
+
+```sh
+chittr --instructions-file ./review-brief.md
+chittr --new --web --instructions-file ./review-brief.md
+```
+
+The file supplies shared instructions to every agent in the initial new conversation, alongside [room YAML and agent-specific instructions](configuration.md#custom-instructions). Relative paths resolve from the launch directory; absolute and `~/` paths also work. Quote paths containing spaces. Supply exactly one flag with a nonempty path. It works with `--new` and `--web`, but is rejected with `resume`, `--session` or `doctor`.
+
+Chittr reads and validates the file before first-run setup, workspace locking or participant startup. Missing, unreadable and over-1-MiB files fail launch. `--help` and `--version` do not read the file. The size limit applies to each file, not the aggregate provider prompt; transport limits may still make a participant unavailable.
+
+The file may live outside the workspace. Its contents are sent to participating providers and saved with the conversation before any participant starts. Editing or deleting the source later does not change that saved brief, and the saved path is only an origin label. A save failure prevents participant startup.
+
+| Action                                    | Room YAML                  | Conversation brief                                    |
+| ----------------------------------------- | -------------------------- | ----------------------------------------------------- |
+| New CLI launch with `--instructions-file` | Current selected YAML      | Read once and save                                    |
+| New launch without the flag               | Current selected YAML      | None                                                  |
+| `resume`, `--session`, `/sessions ID`     | Current selected YAML      | Restore destination's saved text                      |
+| `/new`                                    | Current selected YAML      | None, even when the previous conversation had a brief |
+| Idle `/reload`                            | Re-read selected YAML      | Keep the saved brief                                  |
+| Reconnect, add or re-enable an agent      | Current room configuration | Keep the active brief                                 |
+| `/compact` or context recovery            | Current room configuration | Keep the active brief                                 |
+
+`/config` identifies the active instruction sources. There is no command to edit or clear an existing saved brief; start a new conversation to use a different one. Instruction text does not appear as a chat message. Within custom guidance, the brief takes precedence over room YAML, then agent instructions. This is a prompt instruction, not a permission grant or guarantee of compliance.
+
 ## Browser interface
 
 ```sh
@@ -23,7 +54,7 @@ In either composer, Up recalls your latest sent message, then moves through olde
 
 Click **Reply** on a message to quote it above the composer, then type and send. Your existing draft stays in place. **Cancel reply** or Escape removes the reply target without discarding your text. The target stays with your draft across refresh and saved-session resume. Sent replies link back to the original message.
 
-Use the room buttons to pause, stop, continue, or quit. Each agent's `···` button opens its individual controls. Failed and interrupted deliveries have retry buttons; capped exchanges offer additional follow-up turns. All existing slash commands also work. The sidebar opens saved conversations and effective configuration. Configuration changes still require YAML edits and an idle reload. Restored sessions start active; queued messages run as agents connect, while failed and interrupted deliveries still require an explicit retry.
+Use the room buttons to pause, stop, continue, or quit. Each agent's `···` button opens its individual controls. Failed and interrupted deliveries have retry buttons; capped exchanges offer additional follow-up turns. All existing slash commands also work. The sidebar opens saved conversations and effective configuration, and its theme picker switches between the system colour scheme, light and dark; the browser remembers a light or dark choice across launches. Configuration changes still require YAML edits and an idle reload. Restored sessions start active; queued messages run as agents connect, while failed and interrupted deliveries still require an explicit retry.
 
 ### Images
 

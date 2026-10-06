@@ -10,6 +10,7 @@ Run Chittr from the directory the agents should work in. That directory is the r
 | `chittr resume ID` | Open a saved chat directly. |
 | `chittr doctor` | Check each configured provider's CLI handshake and the file-tool sandbox. Makes no model calls. Exits with status 1 if a check fails. |
 | `chittr doctor --json` | Print the doctor report as JSON. |
+| `chittr update` | Update this npm-global install to the latest release. Close other rooms first. It doesn't start a room. |
 | `chittr --version` | Print the installed version. Short form: `-v`. |
 | `chittr --help` | Print usage, keys and room commands. Short form: `-h`. |
 
@@ -21,9 +22,26 @@ Options for `chittr` and `chittr resume`:
 | `--session ID` | Open saved chat `ID`. Same as `chittr resume ID`. |
 | `--new` | Start a new chat. This is the default. Can't be combined with `resume` or `--session`. |
 | `--state-dir PATH` | Keep chats under `PATH` instead of `~/.agents/chittr/sessions/`. |
+| `--instructions-file PATH` | Give every agent in a new chat a [shared brief](#brief) from a file. Not with `resume` or `--session`. |
 | `--trusted-commands` | Run agent commands as your user, without the sandbox, for this launch only. Requires `edits`, `commands` and `network` to be enabled. See [trusted commands](/guide/configuration/#trusted-commands). |
 
 In the resume picker, Up and Down select, Enter opens and Escape cancels. Type to search by message preview or session ID. Page Up, Page Down, Home and End move through long lists.
+
+## Shared brief {#brief}
+
+A brief gives every agent in one conversation the same instructions, from a file.
+
+```sh
+chittr --instructions-file ./review-brief.md
+chittr --new --web --instructions-file ./review-brief.md
+```
+
+- Chittr reads the file once and saves its text with the new chat. Editing or deleting the file later changes nothing.
+- Resuming the chat restores its brief, and `/new` starts without one. You can't change or clear a saved brief, so start a new chat to use a different one.
+- The path is relative to the launch directory, absolute, or starts with `~/`. Quote paths with spaces.
+- A file over 1 MiB, or one that can't be read, stops the launch before any agent starts.
+- It can't be combined with `resume`, `--session` or `doctor`.
+- The brief takes precedence over [room and agent instructions](/guide/configuration/#instructions) from config. It grants no permissions.
 
 ## Messages {#conversation}
 
@@ -220,6 +238,7 @@ See [configuration](/guide/configuration/) for the settings themselves.
 | **Jump to latest** | Follow the conversation again after scrolling up. |
 | **Check last action** | Recover the result of a send whose response was lost, without sending it twice. |
 | `···` | Open that agent's own controls. |
+| Theme picker | Switch between the system setting, light and dark, from the sidebar. A light or dark choice is remembered across launches. |
 
 ## Keyboard {#keyboard}
 

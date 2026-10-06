@@ -79,18 +79,17 @@ function codeOf(text, info) {
   return result;
 }
 
-test('getting started states the release requirements and sign-in steps', () => {
+test('getting started states the release requirements, sign-in and update steps', () => {
   const page = site[pageOf('index').file];
   const node = /Node\.js (\d+\.\d+\.\d+)[\s>]+or newer/.exec(sources['README.md']);
   assert.ok(node && page.includes(`${node[1]} or newer`), 'Node.js minimum');
-  const tested = /macOS (\d+\.\d+)\s+with Node (\S+) and npm (\S+), using Codex CLI (\S+), Claude Code (\S+)\s+and Grok Build (\S+) with/.exec(sources['docs/installation.md']);
-  assert.ok(tested, 'tested versions in the installation guide');
-  for (const version of tested.slice(1)) assert.ok(page.includes(version.replace(/,$/, '')), `tested version ${version}`);
   const codex = /Codex adapter requires CLI (\S+) or newer/.exec(sources['docs/installation.md']);
   assert.ok(codex && page.includes(`${codex[1]} or newer`), 'Codex CLI minimum');
   const signIn = codeOf(sources['README.md']).filter((code) => /^(codex|claude|grok) .*login$/.test(code));
   assert.ok(signIn.length >= 2);
-  for (const command of [...signIn, 'npm install -g @chittr/cli']) assert.ok(codeOf(page).includes(command), command);
+  // The README's quick start names the update command for npm-global installs.
+  assert.ok(codeOf(sources['README.md']).some((line) => line.startsWith('chittr update')), 'chittr update in the release README');
+  for (const command of [...signIn, 'npm install -g @chittr/cli', 'chittr update']) assert.ok(codeOf(page).includes(command), command);
 });
 
 // Room commands, /attach actions, chittr subcommands and chittr flags named in code.

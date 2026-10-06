@@ -28,10 +28,11 @@ Use `chittr --help` for command options. If your shell cannot find `chittr`, add
 [user-writable npm installation](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally)
 instead of running Chittr as root.
 
-First-time setup requires an interactive terminal and asks which installed
-providers to enable. Choose only Codex, Claude and Grok for this preview; leave
-Antigravity unselected if it appears. It creates `~/.agents/chittr.yaml` with file
-inspection and discussion permissions. Commands, edits and network access start disabled.
+First-time setup requires an interactive terminal and lists the supported CLIs it
+detects (Codex, Claude and Grok), all checked. Move with ↑/↓, toggle with Space and
+confirm with Enter. Setup does not offer Antigravity. It creates
+`~/.agents/chittr.yaml` with file inspection and discussion permissions. Commands,
+edits and network access start disabled.
 The project configuration is `<launch directory>/.agents/chittr.yaml`.
 Project configuration can override permissions. Inspect it before launching in an
 unfamiliar workspace. After setup, `chittr doctor` checks configured providers and
@@ -127,6 +128,38 @@ tab; a backup cannot reconstruct its local recovery state.
 Before upgrading, stop Chittr and make the complete backup above. Record the
 installed version with `chittr --version`. Install an identified release, then
 reopen from the same workspace and check messages, drafts and attachments.
+
+For the npm-global installation you are running:
+
+```sh
+chittr update
+```
+
+The command verifies that npm on PATH owns this installation, resolves `latest`,
+checks the target's Node requirement and installs that exact version as your user.
+It prints the versions, destination and backup reminder before installation, with
+no extra confirmation. Closing other rooms and making the complete backup are your
+responsibility. Equal or newer installed versions stay unchanged. On success,
+launch Chittr again. It does not update provider CLIs or read or write Chittr
+configuration or conversations.
+
+Source checkouts, linked packages, local/npx copies and other package managers are
+outside this command's scope. A mismatched npm prefix fails instead of installing
+a second copy. Use the installation method that owns that copy.
+
+An older release without `chittr update` needs one manual npm upgrade to gain it:
+
+```sh
+npm install -g @chittr/cli@latest
+```
+
+This manual command targets that npm context; it is not a repair for arbitrary
+source or other-manager installations. You can still install an identified version
+with `npm install -g @chittr/cli@VERSION`. npm output is shown during installation;
+Ctrl-C, SIGTERM or SIGHUP cancels it. A failed or cancelled replacement may have
+changed package files. Replacement is not atomic and does not restore the previous
+package automatically. See [reinstall](#reinstall-or-uninstall) and
+[backup recovery](#back-up-and-restore) before retrying.
 
 If a release fails, quit Chittr and preserve its data. Install a known working
 version, for example `npm install -g @chittr/cli@0.1.0` when 0.1.0 is the version
