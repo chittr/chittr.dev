@@ -11,7 +11,7 @@ for (const colorScheme of ['light', 'dark']) for (const width of [375, 1280]) {
     for (const route of routes) {
       await page.goto(route);
       await expect(page.locator('h1')).toBeVisible();
-      await expect(page.locator('.release')).toContainText('v0.1.0');
+      await expect(page.locator('.release')).toContainText('v0.2.0');
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.screenshot({ path: `test-results/guide-top-${colorScheme}-${width}-${route.split('/').filter(Boolean).at(-1)}.png` });
       for (const anchor of await page.locator('.guide-contents a').all()) {

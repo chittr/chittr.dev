@@ -1,15 +1,16 @@
 {
   "repository": "chittr/chittr",
-  "tag": "v0.1.0",
-  "commit": "a55a8c5920d10e9b4cb1bf473b82906143b5eddb",
+  "tag": "v0.2.0",
+  "commit": "f625bb5673650fef5849846fbb20a324a39dfb7c",
   "files": {
     "LICENSE": "c1c71b45353a5fa04caac9b3456230fa8fa92104",
-    "PRIVACY.md": "bb2aa8ac3ac247a0541a2fddfafff4d6e6e17992",
-    "README.md": "c47d476d8dcd034616cd8070297d9fee5c5a7fd7",
+    "PRIVACY.md": "54d3bac6491c03162ec4d59ca4d24b27e26fbe15",
+    "README.md": "af1e04d13fbcba9d2a11f46a2e2a6f2a1831bc32",
     "THIRD_PARTY_NOTICES.md": "ff195c035cf2a75514c383e8dede03ec7506a9ad",
-    "docs/architecture.md": "5ba1299f3f00b4f35fac7b4d82c48c0d83acc1a9",
-    "docs/compatibility.md": "9f82cf67837de822de862d2161fd72c3e2cc0b3c",
-    "docs/installation.md": "cc7227523d516a114d2c0b9bd00118a181c8d20f",
+    "docs/architecture.md": "ad49621360018b3b3204aac6a3032fec80cd6384",
+    "docs/configuration.md": "df0ee38a3de6e00e0f556cb9a415a073afebb592",
+    "docs/installation.md": "9c2955ca87cf12733e8045fffe72d5a21ca000ba",
+    "docs/usage.md": "dab44679c5bb4da707599619333d58dea9161280",
     "examples/project.yaml": "905d27d207508b12532a66206bb97f5b2e8ea049",
     "examples/three-providers.yaml": "e90ab065e60fe2133801649a6dd6fc855c54eed0",
     "examples/user.yaml": "848dc8f8829a0c9da16b33ec192c56028e492d26"

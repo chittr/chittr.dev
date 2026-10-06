@@ -20,7 +20,7 @@ export function validateMap(map) {
       if (!/^[a-z][a-z0-9-]*$/.test(section.id) || sections.has(section.id)) throw new Error('Invalid or duplicate section');
       sections.add(section.id);
       for (const part of section.passages) {
-        if (!/^(README\.md|docs\/(installation|compatibility)\.md)$/.test(part.file)) throw new Error('Unexpected guide source');
+        if (!/^(README\.md|docs\/(installation|compatibility|configuration|usage)\.md)$/.test(part.file)) throw new Error('Unexpected guide source');
       }
     }
   }
