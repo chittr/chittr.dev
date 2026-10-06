@@ -18,15 +18,23 @@ Open `http://localhost:8765/?instant` to see the completed hero transcript. With
 
 The guide starts at `http://localhost:8765/guide/`. After stopping the manual server, `npm run test:browser` runs the desktop/mobile, light/dark, keyboard, clipboard and no-JavaScript checks. It uses installed Google Chrome and Python 3. Screenshots are saved in ignored `test-results/`.
 
-## Refresh the guide
+## Update the guide
 
-The app repository is authoritative for behavior. `guide/provenance.json` records the release tag, full commit and Git blob hashes of snapshots and linked targets.
+The guide's three pages are written here, in `guide/pages/`, for one pinned app release. `guide/source-map.json` names that release's tag and full commit, plus each page's title, intro, Markdown file and `references`: the release files the page is checked against. Snapshots of those files live in `guide/upstream/`, and `guide/provenance.json` records their Git blob hashes. The app licence is published at `/guide/LICENSE.txt`. The app repository stays authoritative for behavior.
 
-Getting started and Configuration quote the release. `guide/source-map.json` separates site-authored titles/navigation from exact app passages. Each passage records its file, inclusive line range, containing Markdown heading and exact boundary lines; optional `exactSpans` select complete sentences within a paragraph. Their behavioral wording is not edited here. Since v0.2.0 the passages come from the app's README, `docs/installation.md`, `docs/configuration.md` and `docs/usage.md`.
+In a page file, each `## Title {#id}` heading starts a section, and the id is its anchor. Pages are a reference for developers: a short explanation and a table per task. They don't cite or link to app source files. Links go to other guide sections, which the build checks, or to vendor sites.
 
-Usage is written here, in `guide/pages/usage.md`, as a command reference for developers: a short explanation and a table of commands per task, without citations or links to app source files. Each `## Title {#id}` heading starts a section, and the id is its anchor. The map's `references` list names the release files it is checked against, and refresh snapshots them. `npm test` fails if a room command, `/attach` action, `chittr` subcommand or flag in those files is missing from the page, or if the page names one they don't. `chittr doctor --json` is the one exception, because only `chittr --help` documents it.
+`npm test` checks the pages against the snapshots:
 
-Normal builds use only checked-in snapshots and installed dependencies. They fetch nothing and need no GitHub credentials. `npm ci` is the separate dependency-install step. HTML in imported Markdown is escaped; imported code blocks are never executed.
+- Usage names every room command, `/attach` action, `chittr` subcommand and flag in its references, and no others. `chittr doctor --json` is the exception, because only `chittr --help` documents it.
+- Configuration names every setting in the configuration guide and examples, and no others. Its effort levels match the release table.
+- Getting started gives the release's Node.js minimum, tested versions, Codex CLI minimum and sign-in commands.
+
+The tests catch names and numbers, not changed descriptions.
+
+Normal builds use only checked-in snapshots and installed dependencies. They fetch nothing and need no GitHub credentials. `npm ci` is the separate dependency-install step. HTML in page Markdown is escaped, and code blocks are never executed.
+
+### Refresh snapshots
 
 To refresh from the same release, use a local checkout of `chittr/chittr` with the selected tag available. Fetching that public tag is an explicit prerequisite, using your normal Git identity. Agents use their assigned identity wrapper. The helper only reads that checkout; it neither fetches nor changes its branch.
 
@@ -40,11 +48,15 @@ git diff -- guide
 
 Refreshing the same pin twice must leave an empty `git diff -- guide` and identical built output. To compare builds, copy `dist/` to a temporary directory before repeating refresh/build and run `diff -r <previous-dist> dist`.
 
-For another **existing release**, resolve its tag to the full commit with `git -C /path/to/chittr rev-parse 'refs/tags/<tag>^{commit}'`. Inspect that commit's documents, then deliberately update the source map's tag, SHA, ranges and boundary lines and the homepage's advertised version together. Keep prerequisites, examples and permission/trust caveats complete. Do not import the README's badges, HTML comment, Contributing or Development sections, or compatibility notes that carry internal issue references. Split passages around level-1 and level-2 headings so each guide section keeps a single outline level; level-3 headings may stay inside a passage.
+Refresh reads every referenced file at the pinned commit and checks the pages' links before replacing anything. A tag that doesn't resolve to the pinned commit, a reference outside the allowed source files, a missing file or a broken guide link exits nonzero and leaves snapshots unchanged.
 
-Run refresh after changing the map. It validates the tag/SHA, selections and all imported app links, including fragments and absolute `blob/main` URLs, before replacing snapshots. An absent file, moved heading/boundary, invalid fragment or mismatched pin exits nonzero. Inspect the rendered pages and provenance diff; do not repair an error by substituting main or silently omitting a section. Changes to quoted behavioral text belong in the app repository first. Then read the release's changelog and update `guide/pages/usage.md` for changed behavior, limits and commands; the coverage test catches commands, not changed descriptions. Licence text is refreshed from that same commit and published at `/guide/LICENSE.txt`.
+### Document a new release
 
-Validate a missing-source failure in a disposable copy of this website: change one passage's `heading` to a nonexistent heading, run the refresh command and confirm a nonzero exit with `Source selection moved or missing`; snapshots and provenance must remain unchanged. Restore the map before building. Repeat with an incorrect SHA to verify the tag check. `npm test` also exercises moved selections, missing files/fragments, corrupt snapshots, provenance mismatches and publication boundaries.
+1. Resolve the tag with `git -C /path/to/chittr rev-parse 'refs/tags/<tag>^{commit}'`.
+2. Update `tag` and `commit` in `guide/source-map.json`, and the version the homepage advertises.
+3. Run refresh, then `npm test`. Failures name the commands or settings to add or remove, and the requirements that changed.
+4. Read the release's `CHANGELOG.md` and `git diff -- guide/upstream` for behavior, limits and wording the tests can't see, and update the pages.
+5. Build, and read the pages in a browser.
 
 Before merging the implementation PR, inspect its branch preview after redirects: `/guide/`, `/guide/configuration/`, `/guide/usage/`, direct section links, homepage/back links and assets. Keep screenshots and validation evidence with the PR. This does not require changing Pages configuration or production DNS.
 
