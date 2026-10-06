@@ -2,236 +2,29 @@
   "repository": "chittr/chittr",
   "tag": "v0.2.0",
   "commit": "f625bb5673650fef5849846fbb20a324a39dfb7c",
-  "curation": "Getting started and Configuration quote exact source passages; their titles and introductory navigation are site-authored. README badges, its HTML comment, Contributing and Development are excluded, and compatibility notes are not imported because their current text carries internal issue references. Usage is written on this site as a command reference and checked against the referenced release files.",
+  "curation": "Every page is written on this site and checked against the release files it references. Tests cover commands, settings and stated requirements; descriptions are reviewed by hand against each release.",
   "pages": [
     {
       "slug": "index",
       "title": "Getting started",
       "intro": "Install Chittr, choose your agents and open your first room.",
-      "sections": [
-        {
-          "id": "requirements",
-          "title": "Before you start",
-          "passages": [
-            {
-              "file": "README.md",
-              "start": 44,
-              "end": 53,
-              "heading": "# Chittr",
-              "first": "> **Early preview.** This is an early hobby-project preview for macOS on Apple Silicon. Other",
-              "last": "> run without Chittr's command sandbox, with your account's access."
-            },
-            {
-              "file": "README.md",
-              "start": 171,
-              "end": 172,
-              "heading": "## License",
-              "first": "Chittr is [MIT licensed](LICENSE); bundled libraries retain their",
-              "last": "[third-party notices](THIRD_PARTY_NOTICES.md)."
-            },
-            {
-              "file": "docs/installation.md",
-              "start": 3,
-              "end": 8,
-              "heading": "# Install and recover Chittr",
-              "first": "The first-preview rehearsal passed on an Apple Silicon Mac running macOS 26.2",
-              "last": "Quality suite and broader platform matrix are skipped for this preview."
-            }
-          ]
-        },
-        {
-          "id": "install",
-          "title": "Install Chittr",
-          "passages": [
-            {
-              "file": "README.md",
-              "start": 57,
-              "end": 71,
-              "heading": "## Install",
-              "first": "Install Node.js and at least one of the provider CLIs below, then sign in with",
-              "last": "```"
-            }
-          ]
-        },
-        {
-          "id": "first-room",
-          "title": "Your first room",
-          "passages": [
-            {
-              "file": "docs/configuration.md",
-              "start": 7,
-              "end": 9,
-              "heading": "## First-run setup",
-              "first": "When no config exists, interactive setup offers to create `~/.agents/chittr.yaml`. It detects installed CLIs and requires you to choose which to enable. Nothing is selected automatically. Setup saves your choices under `defaultAgents`, with no model overrides or stock custom instructions. No personal config ships with the app. [Install and set up](installation.md#install-and-set-up) lists the providers to choose for this preview and the permissions setup starts with.",
-              "last": "After setup, `chittr doctor` checks the configured supported providers and the tool sandbox without a chat turn. It does not prove that a model can answer or that its terms permit your use. Chat responses and the optional live tests use your normal subscription allowance."
-            },
-            {
-              "file": "docs/usage.md",
-              "start": 7,
-              "end": 9,
-              "heading": "## Launch directory and saved chats",
-              "first": "Launch in the exact directory agents should inspect. For example, launching in `~/Projects/your-project` gives the room that workspace. Launching in a nested directory gives it only that nested directory. The app does not search upward for a Git root or project config.",
-              "last": "`chittr` always starts a new chat and preserves previous conversations. Run `chittr resume` to browse saved chats from this exact directory, most recently updated first. Use ↑/↓ to select, Enter to resume, or Escape to cancel. Type to search conversation previews or session IDs; PgUp/PgDn and Home/End navigate longer lists. `chittr resume ID` opens a specific saved chat directly."
-            }
-          ]
-        },
-        {
-          "id": "browser",
-          "title": "Open the browser interface",
-          "passages": [
-            {
-              "file": "docs/usage.md",
-              "start": 13,
-              "end": 18,
-              "heading": "## Browser interface",
-              "first": "```sh",
-              "last": "This starts a new chat, runs a local server, and opens your default browser. If opening the browser fails, use the link printed in the terminal. The browser uses the same workspace, merged YAML, CLI subscriptions, permissions, and saved sessions as terminal chat. `chittr resume --web` selects a saved chat in the terminal before opening it in the browser; `chittr resume ID --web` opens it directly. `--state-dir PATH` also works with `--web`. First-time configuration still uses the terminal setup prompt."
-            }
-          ]
-        },
-        {
-          "id": "setup",
-          "title": "Setup and troubleshooting",
-          "passages": [
-            {
-              "file": "docs/installation.md",
-              "start": 26,
-              "end": 55,
-              "heading": "## Install and set up",
-              "first": "Use `chittr --help` for command options. If your shell cannot find `chittr`, add",
-              "last": "process before replacing an installation or copying storage."
-            }
-          ]
-        }
+      "file": "pages/getting-started.md",
+      "references": [
+        "PRIVACY.md",
+        "README.md",
+        "docs/installation.md"
       ]
     },
     {
       "slug": "configuration",
       "title": "Configuration",
-      "intro": "Choose the participants, instructions and permissions for your room.",
-      "sections": [
-        {
-          "id": "user-config",
-          "title": "Your user configuration",
-          "passages": [
-            {
-              "file": "docs/configuration.md",
-              "start": 13,
-              "end": 34,
-              "heading": "## Configuration files",
-              "first": "User settings load first, then the launch directory's `.agents/chittr.yaml`. Human name, permissions, skills, and conversation settings merge field by field. There is no system-wide layer.",
-              "last": "```"
-            },
-            {
-              "file": "docs/configuration.md",
-              "start": 38,
-              "end": 40,
-              "heading": "## Your display name",
-              "first": "Set `human.name` in `~/.agents/chittr.yaml` to choose how you appear in the transcript and composer. Agents receive the current name on every turn so they can address you by name. Project config can override it; omission inherits your user setting, or defaults to `You` when neither file sets a name. Setup asks for the name when creating a user config. Changes apply on launch/resume or idle `/reload`, including the labels on existing messages.",
-              "last": "`@human` remains the addressing token for you, and autocomplete labels it with your name. Saved conversations keep a stable identity, so changing your display name does not create a new participant or lose history."
-            }
-          ]
-        },
-        {
-          "id": "participants",
-          "title": "Project participants",
-          "passages": [
-            {
-              "file": "docs/configuration.md",
-              "start": 44,
-              "end": 65,
-              "heading": "## Participants",
-              "first": "A project with an `agents` section uses exactly that roster. A project that omits `agents`, including a directory without a project config, uses your user-level `defaultAgents`. Agent definitions are self-contained: every entry requires `provider`, and project entries do not inherit models, enabled flags, or instructions from the fallback roster. An explicit `agents: {}` produces a configuration error; it does not activate defaults. `defaultAgents` belongs only in user config.",
-              "last": "Only `astra` and `sol` join this project, addressed with their matching `@handles`. User-level Codex and Claude defaults do not join. Room settings still inherit normally."
-            }
-          ]
-        },
-        {
-          "id": "models",
-          "title": "Models and effort",
-          "passages": [
-            {
-              "file": "docs/configuration.md",
-              "start": 69,
-              "end": 83,
-              "heading": "## Models and effort",
-              "first": "`model` is optional. Codex and Claude inherit their CLI default; Grok uses the CLI's default in an isolated profile. Set `model` explicitly to choose another model. Set `enabled: false` to disable an entry in the selected roster.",
-              "last": "After editing `effort`, run `/reload` while all agents are idle. Only affected participants restart with fresh provider sessions and the saved public conversation, following the same lifecycle as a model change. `/config` shows each participant's configured effort and its source; `provider default` means Chittr did not override it."
-            },
-            {
-              "file": "docs/configuration.md",
-              "start": 87,
-              "end": 89,
-              "heading": "## Several providers in one room",
-              "first": "See [the three-provider project example](../examples/three-providers.yaml) to use Codex,",
-              "last": "queues and terminal/browser controls."
-            }
-          ]
-        },
-        {
-          "id": "instructions",
-          "title": "Custom instructions",
-          "passages": [
-            {
-              "file": "docs/configuration.md",
-              "start": 93,
-              "end": 111,
-              "heading": "## Custom instructions",
-              "first": "Custom instruction sources are read in their listed order from the selected roster only. Provider guidance and the room protocol remain in place. For example:",
-              "last": "That file reference resolves to `.agents/instructions/review.md` beside the project config. Instruction files are explicit configuration inputs and may live outside the task workspace. They are read on launch or idle reload. Unused fallback instruction files are not read. Unknown fields, unreadable selected instructions, and per-agent permission policies are rejected. `/config` shows effective settings and their source files."
-            },
-            {
-              "file": "docs/configuration.md",
-              "start": 115,
-              "end": 115,
-              "heading": "## Migrating an older user config",
-              "first": "To migrate an existing user config, rename its top-level `agents` key to `defaultAgents`, preserving its contents. The old user-level key remains supported as a fallback alias; files are never rewritten automatically. Defining both keys in user config is an error. Existing project configs that relied on partial agent overrides must now specify `provider` and any desired agent settings themselves. The legacy `instructions.mode` field remains accepted, but sources no longer merge across user and project rosters.",
-              "last": "To migrate an existing user config, rename its top-level `agents` key to `defaultAgents`, preserving its contents. The old user-level key remains supported as a fallback alias; files are never rewritten automatically. Defining both keys in user config is an error. Existing project configs that relied on partial agent overrides must now specify `provider` and any desired agent settings themselves. The legacy `instructions.mode` field remains accepted, but sources no longer merge across user and project rosters."
-            }
-          ]
-        },
-        {
-          "id": "permissions",
-          "title": "Room permissions",
-          "passages": [
-            {
-              "file": "docs/configuration.md",
-              "start": 119,
-              "end": 143,
-              "heading": "## Permissions",
-              "first": "Permissions apply to the whole room. There are three, and all start off:",
-              "last": "| `trusted`   | All three permissions `true`, plus a trust grant for this workspace | As your user account, with no sandbox                                                           |"
-            }
-          ]
-        },
-        {
-          "id": "trusted-commands",
-          "title": "Trusted commands",
-          "passages": [
-            {
-              "file": "docs/configuration.md",
-              "start": 147,
-              "end": 183,
-              "heading": "## Trusted commands",
-              "first": "Sandboxed commands work for builds and tests that stay inside the workspace. They can't use your accounts. They can't read the rest of your home directory, and Chittr starts them with only `PATH`, `LANG` and `TMPDIR` set, so `HOME`, tokens and your SSH agent are missing. Homebrew's `bin` directory isn't on their `PATH`. Commands that rely on your logins, such as `gh pr create` or `git push` over SSH, fail.",
-              "last": "Run `/reload` while idle after changing a grant. A mode change restarts participants with current tools and instructions, then restores the public conversation. Resume and `/sessions ID` recompute the mode from current settings and this process's launch flag. A saved conversation can't bring back an old grant or a previous launch's flag. Chittr captures the environment once at launch, so relaunch to pick up exported changes."
-            }
-          ]
-        },
-        {
-          "id": "skills",
-          "title": "Skills",
-          "passages": [
-            {
-              "file": "docs/configuration.md",
-              "start": 187,
-              "end": 208,
-              "heading": "## Skills",
-              "first": "Skills are enabled by default for the whole room. Each agent receives a catalogue of its provider's installed skills and reads the relevant `SKILL.md` through the room's file tools. You can ask for one by name, for example: `@codex Use the review skill to inspect this proposal.` Skills marked `disable-model-invocation: true` are listed with instructions to use them only when you explicitly request them.",
-              "last": "This disables the room's skill catalogue and additional file access. Ordinary files already inside the workspace remain readable. Chittr supplies skill instructions through its own tools; native skill slash commands, automatic shell snippets, hooks, and skill-spawned agents remain disabled."
-            }
-          ]
-        }
+      "intro": "Every setting in Chittr's configuration files.",
+      "file": "pages/configuration.md",
+      "references": [
+        "docs/configuration.md",
+        "examples/project.yaml",
+        "examples/three-providers.yaml",
+        "examples/user.yaml"
       ]
     },
     {

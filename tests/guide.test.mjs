@@ -7,10 +7,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { loadGuide, selectPassage, renderGuide, parseSitePage, markdown, blobHash } from '../scripts/guide.mjs';
+import { loadGuide, renderGuide, parseSitePage, checkGuideLinks, markdown, blobHash } from '../scripts/guide.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const { map, sources, site } = await loadGuide();
+const pageOf = (slug) => map.pages.find((page) => page.slug === slug);
 async function tree(directory, prefix = '') {
   const result = {};
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -30,47 +31,57 @@ test('built site has only the public allowlist and stable output', async () => {
   assert.equal(first['guide/LICENSE.txt'], sources.LICENSE);
 });
 
-test('guide contains release text and complete examples, omits developer commands and moving app links', () => {
-  const pages = Object.fromEntries(map.pages.map((page) => [page.slug, renderGuide(map, sources, page, site)]));
-  assert.match(pages.configuration, /A project with an <code>agents<\/code> section uses exactly that roster/);
-  assert.match(pages.configuration, /Trusted commands have broader account access, including skill writes/);
+test('guide pages keep their caveats and tables, and cite no app source files', () => {
+  const pages = Object.fromEntries(map.pages.map((page) => [page.slug, renderGuide(map, page, site)]));
+  assert.match(pages.index, /npm install -g @chittr\/cli/);
+  assert.match(pages.index, /Edits, commands and network access start off/);
   assert.match(pages.configuration, /version: 1\nhuman:/);
   assert.match(pages.configuration, /version: 1\nagents:\n  astra:/);
-  assert.match(pages.index, /chittr resume --web/);
+  assert.match(pages.configuration, /A project file can't grant trust/);
+  assert.match(pages.configuration, /Trusted commands can change them/);
   assert.match(pages.usage, /Stop does not roll back file edits or command side effects/);
   assert.match(pages.usage, /Failed and interrupted deliveries still need <code>\/retry<\/code>/);
   assert.match(pages.usage, /gets nothing from that message, not even the caption/);
-  assert.match(pages.usage, /Check last action/);
-  for (const id of ['cli', 'controls', 'keyboard']) {
-    const section = pages.usage.split(`<section id="${id}"`)[1].split('</section>')[0];
-    assert.match(section, /<table>/);
-    assert.match(section, /<thead>/);
-    assert.match(section, /<tbody>/);
+  const tables = { index: ['requirements', 'install', 'troubleshooting'], configuration: ['settings', 'participants', 'permissions'], usage: ['cli', 'controls', 'keyboard'] };
+  for (const [slug, ids] of Object.entries(tables)) for (const id of ids) {
+    const section = pages[slug].split(`<section id="${id}"`)[1].split('</section>')[0];
+    assert.match(section, /<table>\n<thead>[\s\S]*<tbody>/, `${slug}#${id}`);
   }
-  assert.doesNotMatch(pages.usage, /<p>\|/);
-  // The usage reference cites no app source files.
-  for (const section of pages.usage.match(/<section[\s\S]*?<\/section>/g)) assert.doesNotMatch(section, /github\.com|\.md\b/);
   for (const html of Object.values(pages)) {
     assert.match(html, /Documented release/);
     assert.match(html, new RegExp(map.commit));
-    assert.doesNotMatch(html, /Release source/);
-    assert.doesNotMatch(html, /blob\/main\/|npm run test:|#85|#105|<h[1-6][^>]*>Development/);
+    assert.doesNotMatch(html, /<p>\||Release source|blob\/main\/|npm run test:|#85|#105/);
+    for (const section of html.match(/<section[\s\S]*?<\/section>/g)) assert.doesNotMatch(section, /github\.com|href="[^"]*\.md/);
   }
 });
 
-// Inline code and code-block lines from Markdown, where commands are written.
-function codeOf(text) {
+// Inline code and code-block lines from Markdown, where commands and settings are written.
+function codeOf(text, info) {
   const result = [];
   const visit = (tokens) => {
     for (const token of tokens) {
-      if (token.type === 'code_inline') result.push(token.content);
-      if (token.type === 'fence') result.push(...token.content.split('\n'));
+      if (token.type === 'code_inline' && info === undefined) result.push(token.content);
+      if (token.type === 'fence' && (info === undefined || token.info === info)) result.push(...token.content.split('\n'));
       if (token.children) visit(token.children);
     }
   };
   visit(markdown.parse(text, {}));
   return result;
 }
+
+test('getting started states the release requirements and sign-in steps', () => {
+  const page = site[pageOf('index').file];
+  const node = /Node\.js (\d+\.\d+\.\d+)[\s>]+or newer/.exec(sources['README.md']);
+  assert.ok(node && page.includes(`${node[1]} or newer`), 'Node.js minimum');
+  const tested = /macOS (\d+\.\d+)\s+with Node (\S+) and npm (\S+), using Codex CLI (\S+), Claude Code (\S+)\s+and Grok Build (\S+) with/.exec(sources['docs/installation.md']);
+  assert.ok(tested, 'tested versions in the installation guide');
+  for (const version of tested.slice(1)) assert.ok(page.includes(version.replace(/,$/, '')), `tested version ${version}`);
+  const codex = /Codex adapter requires CLI (\S+) or newer/.exec(sources['docs/installation.md']);
+  assert.ok(codex && page.includes(`${codex[1]} or newer`), 'Codex CLI minimum');
+  const signIn = codeOf(sources['README.md']).filter((code) => /^(codex|claude|grok) .*login$/.test(code));
+  assert.ok(signIn.length >= 2);
+  for (const command of [...signIn, 'npm install -g @chittr/cli']) assert.ok(codeOf(page).includes(command), command);
+});
 
 // Room commands, /attach actions, chittr subcommands and chittr flags named in code.
 function commandsIn(code) {
@@ -88,7 +99,7 @@ function commandsIn(code) {
 }
 
 test('usage reference covers every command in the pinned release and invents none', () => {
-  const usage = map.pages.find((page) => page.slug === 'usage');
+  const usage = pageOf('usage');
   const release = commandsIn(usage.references.flatMap((file) => codeOf(sources[file])));
   // Flag-like code in the documents that is not a chittr option.
   const notChittrFlags = { '--effort': "Claude Code's flag", '--reasoning-effort': "Grok Build's flag", '--list': 'a file name in an /attach example' };
@@ -102,17 +113,60 @@ test('usage reference covers every command in the pinned release and invents non
   for (const command of ['/pause', '/attach --status', 'chittr resume', '--trusted-commands']) assert.ok(release.has(command), command);
 });
 
-test('site-authored pages need section ids and cannot link to source files', () => {
+// Dotted key paths in YAML, with participant names as `*`.
+function yamlKeys(lines) {
+  const keys = new Set();
+  const stack = [];
+  for (const line of lines) {
+    const match = /^(\s*)(- )?([A-Za-z_][\w-]*):(?:\s|$)/.exec(line);
+    if (!match) continue;
+    const indent = match[1].length + (match[2] ? 2 : 0);
+    while (stack.length && stack.at(-1).indent >= indent) stack.pop();
+    const parent = stack.map((entry) => entry.key);
+    const key = ['agents', 'defaultAgents'].includes(parent.at(-1)) ? '*' : match[3];
+    stack.push({ indent, key });
+    keys.add([...parent, key].join('.'));
+  }
+  return keys;
+}
+
+// Setting names from YAML examples and dotted keys such as `human.name`.
+function settingsIn(yamlLines, code) {
+  const paths = [...yamlKeys(yamlLines), ...code.filter((text) => /^[a-z][A-Za-z_]*(\.[a-z][A-Za-z_]*)+$/.test(text))];
+  return new Set(paths.flatMap((path) => path.split('.')).filter((name) => name !== '*'));
+}
+
+test('configuration reference covers every documented setting and invents none', () => {
+  const configuration = pageOf('configuration');
+  const docs = configuration.references.filter((file) => file.endsWith('.md'));
+  const examples = configuration.references.filter((file) => file.endsWith('.yaml'));
+  const release = settingsIn([...docs.flatMap((file) => codeOf(sources[file], 'yaml')), ...examples.flatMap((file) => sources[file].split('\n'))], docs.flatMap((file) => codeOf(sources[file])));
+  const text = site[configuration.file];
+  const page = settingsIn(codeOf(text, 'yaml'), codeOf(text));
+  const mentioned = new Set([...page, ...codeOf(text)]);
+  assert.deepEqual([...release].filter((name) => !mentioned.has(name)), [], 'Document these release settings on the configuration page');
+  assert.deepEqual([...page].filter((name) => !release.has(name)), [], 'These settings are not in the pinned release documents');
+  for (const name of ['follow_up_turns', 'defaultAgents', 'trustedCommands', 'workspaces', 'mode']) assert.ok(release.has(name), name);
+  // Effort levels are a closed list per provider; the page must match the release table.
+  const levels = (source) => Object.fromEntries([...source.matchAll(/^\| (Codex|Claude|Grok)\s*\| (`[^|]+?)\s*\|$/gm)].map(([, provider, list]) => [provider, list]));
+  assert.equal(Object.keys(levels(sources['docs/configuration.md'])).length, 3);
+  assert.deepEqual(levels(text), levels(sources['docs/configuration.md']));
+});
+
+test('guide pages need section ids and link only to guide sections or vendor sites', () => {
   assert.throws(() => parseSitePage('Intro\n\n## One {#one}\n'), /start with a section heading/);
   assert.throws(() => parseSitePage('## One\n'), /unique \{#id\}/);
   assert.throws(() => parseSitePage('## One {#one}\n\n## Two {#one}\n'), /unique \{#id\}/);
   assert.throws(() => parseSitePage('# Title\n\n## One {#one}\n'), /title from the source map/);
   assert.deepEqual(parseSitePage('## One {#one}\n\nText.\n\n### Detail\n\n## Two {#two}\n').map(({ id, title }) => [id, title]), [['one', 'One'], ['two', 'Two']]);
-  const usage = map.pages.find((page) => page.slug === 'usage');
-  for (const link of ['[x](https://github.com/chittr/chittr/blob/v0.2.0/docs/usage.md)', '[x](docs/usage.md)', '[x](http://example.com)']) {
-    assert.throws(() => renderGuide(map, sources, usage, { [usage.file]: `## One {#one}\n\n${link}\n` }), /Unsupported site link/);
+  const usage = pageOf('usage');
+  const withLink = (link) => ({ ...site, [usage.file]: `${site[usage.file]}\n${link}\n` });
+  for (const link of ['[x](#cli)', '[x](/guide/configuration/#permissions)', '[x](/guide/)', '[x](https://docs.npmjs.com/)']) checkGuideLinks(map, withLink(link));
+  for (const link of ['[x](#nope)', '[x](/guide/configuration/#nope)', '[x](/guide/missing/)', '[x](docs/usage.md)', '[x](http://example.com)', '[x](https://github.com/chittr/chittr/blob/v0.2.0/docs/usage.md)']) {
+    assert.throws(() => checkGuideLinks(map, withLink(link)), /Unsupported guide link/, link);
   }
-  assert.throws(() => renderGuide(map, sources, usage, {}), /Missing site-authored page/);
+  assert.throws(() => renderGuide(map, usage, {}), /Missing guide page/);
+  assert.equal(markdown.render('<script>alert(1)</script>\n'), '<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>\n');
 });
 
 // Import synthetic Git objects as test data. No network, commits through a user's
@@ -167,14 +221,16 @@ test('refresh CLI verifies the release and fails without replacing snapshots', a
     assert.equal(JSON.parse(saved['provenance.json']).commit, sha);
     result = refresh(); assert.equal(result.status, 0, result.stderr);
     assert.deepEqual(await tree(join(fixture, 'guide')), saved);
-    for (const fault of ['pin', 'heading', 'missing-source']) {
+    const usagePath = join(fixture, 'guide', pageOf('usage').file);
+    for (const fault of ['pin', 'unexpected-source', 'broken-link']) {
       const changed = structuredClone(fixtureMap);
       if (fault === 'pin') changed.commit = '0'.repeat(40);
-      else if (fault === 'heading') changed.pages[0].sections[0].passages[0].heading = '## Missing heading';
-      else changed.pages[0].sections[0].passages[0].file = 'docs/absent.md';
+      else if (fault === 'unexpected-source') changed.pages[0].references.push('docs/absent.md');
+      else await writeFile(usagePath, `${site[pageOf('usage').file]}\nSee [the source](docs/usage.md).\n`);
       await writeFile(mapPath, JSON.stringify(changed));
       result = refresh(); assert.notEqual(result.status, 0, fault);
-      assert.match(result.stderr, /nothing replaced|selection moved or missing|Unexpected guide source/);
+      assert.match(result.stderr, /nothing replaced|Unexpected guide source|Unsupported guide link/);
+      await writeFile(usagePath, site[pageOf('usage').file]);
       const after = await tree(join(fixture, 'guide'));
       delete after['source-map.json'];
       const before = { ...saved }; delete before['source-map.json'];
@@ -183,27 +239,7 @@ test('refresh CLI verifies the release and fails without replacing snapshots', a
   } finally { await rm(fixture, { recursive: true, force: true }); }
 });
 
-test('missing or moved source selections fail instead of producing partial documentation', () => {
-  const section = map.pages[0].sections[0].passages[0];
-  assert.throws(() => selectPassage(section, {}), /Missing source/);
-  assert.throws(() => selectPassage({ ...section, heading: '## Removed heading' }, sources), /selection moved or missing/);
-  assert.throws(() => selectPassage(section, { ...sources, 'README.md': '\n' + sources['README.md'] }), /selection moved or missing/);
-  assert.throws(() => selectPassage({ ...section, exactSpans: ['This was never in the release.'] }, sources), /Missing or ambiguous/);
-});
-
-test('app links require pinned files and fragments, including absolute main URLs', () => {
-  // No imported passage currently links to app source by absolute URL, so a fixture passage does.
-  const line = 'See [maintenance](https://github.com/chittr/chittr/blob/main/docs/architecture.md#context-maintenance).';
-  const page = { slug: 'usage', title: 'Fixture', intro: 'Fixture.', sections: [{ id: 'fixture', title: 'Fixture', passages: [{ file: 'README.md', start: 3, end: 3, heading: '# Fixture', first: line, last: line }] }] };
-  const fixture = { ...sources, 'README.md': `# Fixture\n\n${line}\n`, 'docs/architecture.md': '# Architecture\n\n## Context maintenance\n' };
-  const html = renderGuide(map, fixture, page);
-  assert.ok(html.includes(`/blob/${map.commit}/docs/architecture.md#context-maintenance`));
-  assert.throws(() => renderGuide(map, { ...fixture, 'docs/architecture.md': undefined }, page), /Unverified source link/);
-  assert.throws(() => renderGuide(map, { ...fixture, 'docs/architecture.md': '# Nothing here\n' }, page), /Unverified source fragment/);
-  assert.equal(markdown.render('<script>alert(1)</script>\n'), '<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>\n');
-});
-
-test('build rejects corrupt snapshots and stale provenance before replacing existing output', async () => {
+test('build rejects corrupt, missing or stale snapshots before replacing existing output', async () => {
   const fixture = await mkdtemp(join(tmpdir(), 'chittr-guide-test-'));
   try {
     await cp(join(root, 'scripts'), join(fixture, 'scripts'), { recursive: true });
@@ -211,20 +247,30 @@ test('build rejects corrupt snapshots and stale provenance before replacing exis
     await cp(join(root, 'dist'), join(fixture, 'dist'), { recursive: true });
     await symlink(join(root, 'node_modules'), join(fixture, 'node_modules'));
     const before = await tree(join(fixture, 'dist'));
+    const build = () => spawnSync(process.execPath, ['scripts/build.mjs'], { cwd: fixture, encoding: 'utf8' });
     const source = join(fixture, 'guide/upstream/README.md');
     const original = await readFile(source, 'utf8');
     await writeFile(source, original + '\nunauthorized content\n');
-    let run = spawnSync(process.execPath, ['scripts/build.mjs'], { cwd: fixture, encoding: 'utf8' });
+    let run = build();
     assert.notEqual(run.status, 0);
     assert.match(run.stderr, /Changed upstream snapshot/);
     assert.deepEqual(await tree(join(fixture, 'dist')), before);
     await writeFile(source, original);
+    const provenancePath = join(fixture, 'guide/provenance.json');
+    const provenance = await readFile(provenancePath, 'utf8');
+    const partial = JSON.parse(provenance); delete partial.files['docs/usage.md'];
+    await writeFile(provenancePath, JSON.stringify(partial));
+    run = build();
+    assert.notEqual(run.status, 0);
+    assert.match(run.stderr, /Missing release snapshot: docs\/usage\.md/);
+    assert.deepEqual(await tree(join(fixture, 'dist')), before);
+    await writeFile(provenancePath, provenance);
     const changedMap = structuredClone(map); changedMap.commit = '0'.repeat(40);
     await writeFile(join(fixture, 'guide/source-map.json'), JSON.stringify(changedMap));
-    run = spawnSync(process.execPath, ['scripts/build.mjs'], { cwd: fixture, encoding: 'utf8' });
+    run = build();
     assert.notEqual(run.status, 0);
     assert.match(run.stderr, /pin does not match/);
     assert.deepEqual(await tree(join(fixture, 'dist')), before);
-    assert.equal(blobHash(original), JSON.parse(await readFile(join(fixture, 'guide/provenance.json'), 'utf8')).files['README.md']);
+    assert.equal(blobHash(original), JSON.parse(provenance).files['README.md']);
   } finally { await rm(fixture, { recursive: true, force: true }); }
 });

@@ -45,4 +45,15 @@
   .guide-contents { margin-top: 16px; padding-top: 16px; }
   .guide-section { margin-top: 40px; }
 }
-@media (max-width: 600px) { .guide-page .top nav a:nth-child(1) { display: inline; } }
+@media (max-width: 600px) {
+  .guide-page .top nav a:nth-child(1) { display: inline; }
+  /* Stack table rows: the first cell leads, and wider tables label the rest with their column. */
+  .guide-table table { min-width: 0; }
+  .guide-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .guide-table tr, .guide-table td { display: block; }
+  .guide-table tr { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .guide-table td { padding: 2px 0; border: 0; }
+  .guide-table td:empty { display: none; }
+  .guide-table td:first-child { color: var(--ink); font-weight: 600; padding-bottom: 4px; }
+  .guide-table tr:has(td:nth-child(3)) td:not(:first-child)::before { content: attr(data-label) ": "; color: var(--ink-2); font-weight: 600; }
+}

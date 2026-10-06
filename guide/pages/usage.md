@@ -13,6 +13,8 @@ Run Chittr from the directory the agents should work in. That directory is the r
 | `chittr --version` | Print the installed version. Short form: `-v`. |
 | `chittr --help` | Print usage, keys and room commands. Short form: `-h`. |
 
+Options for `chittr` and `chittr resume`:
+
 | Option | Description |
 | --- | --- |
 | `--web` | Open the room in the browser. Works with `chittr` and `chittr resume`. |
@@ -176,6 +178,8 @@ In the terminal, press Ctrl+O to open the attachment input and run one of these:
 | `/attach --status` | Show whether each recipient can receive images, and why not. Sends nothing. |
 
 Enter runs the action, and Escape returns to the message composer. Staged images are sent with your next message, and a caption is optional.
+
+Which agents can receive images:
 
 | Provider | Receives images |
 | --- | --- |
