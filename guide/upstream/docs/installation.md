@@ -58,11 +58,11 @@ process before replacing an installation or copying storage.
 
 Close every running Chittr process first. Uninstall removes the executable and
 package, while configuration and conversation data remain in place. To reinstall
-the identified 0.1.0 release:
+the identified 0.2.0 release:
 
 ```sh
 npm uninstall -g @chittr/cli
-npm install -g @chittr/cli@0.1.0
+npm install -g @chittr/cli@0.2.0
 ```
 
 Reopen from the same canonical workspace directory using the same storage base.
@@ -150,19 +150,32 @@ check an ordinary conversation before relying on it. Text startup checks reject
 unsupported policies. The Codex adapter requires CLI 0.153.0 or newer; other
 runtime requirements still apply. No provider binary is bundled with Chittr.
 
-PNG attachments are limited to four per message, 1 MiB each and 3 MiB total.
-Image eligibility depends on the active provider session:
+The host accepts PNG attachments of up to 3 MiB each, 20 images and 6 MiB per
+message. The browser converts any image it can decode to PNG and scales it down
+to at most 2000 px on the long edge, further if needed to fit 3 MiB; a
+non-interlaced PNG already within both limits uploads unchanged. Terminal
+uploads (`/attach` and the clipboard) are not resized and must already be PNGs
+within the limits.
 
-- Codex needs a fresh thread with verified native policy and observed model and
-  effort. Images remain unavailable on resumed threads.
-- Claude needs a verified native tool inventory and a completed text turn that
-  reports the actual model. Checkpoint replacement and historical image retrieval
-  after restart remain outside verified coverage.
+Images need no room configuration: permissions, skills and command mode do not
+change image delivery, so the default room can send images. Eligibility depends
+on the active provider session:
+
+- Codex needs verified native policy, the same checks that admit the thread at
+  startup, and an observed model and effort. Fresh and resumed threads qualify.
+- Claude can receive images from connection, including in the first message. A
+  turn whose native tool inventory lists an unexpected tool is aborted, and an
+  inventory that fails verification closes images until the next passing turn.
+  Checkpoint replacement and historical image retrieval after restart remain
+  outside verified coverage.
 - Grok needs verified native tools, its isolated-room runtime contract, a reported
   model and a recognized live CLI identity. Legacy Grok 1.0.13 is restricted to
   a room with all task permissions and skills off.
+- Antigravity has no image route.
 
-Read `/participants` or the browser's status before sending images. A stored
+When a staged image's recipient can't receive it, the composer says so per
+recipient; the browser's **Details** and the terminal's `/attach --status` show
+the reason, and `/participants` lists every agent's status. A stored
 thumbnail proves local storage, not delivery to a provider. If a recipient cannot
 receive an image, the whole message including its caption is withheld from that
 recipient and the reason is shown. The agent can still receive text-only messages.
@@ -178,8 +191,9 @@ image continuity is unavailable.
 ## Package contents
 
 The npm package includes built runtime modules and workers, browser assets,
-configuration examples, this guide, the README, [MIT licence](../LICENSE),
-[third-party notices](../THIRD_PARTY_NOTICES.md) and
+configuration examples, this guide, the [configuration](configuration.md) and
+[usage](usage.md) guides, the README, [changelog](../CHANGELOG.md),
+[MIT licence](../LICENSE), [third-party notices](../THIRD_PARTY_NOTICES.md) and
 [privacy disclosures](../PRIVACY.md). It contains no provider CLI binaries,
 personal configuration, private evidence, tests or development scripts.
 Source maps and TypeScript declarations are excluded. Source is at

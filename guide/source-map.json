@@ -1,8 +1,8 @@
 {
   "repository": "chittr/chittr",
-  "tag": "v0.1.0",
-  "commit": "a55a8c5920d10e9b4cb1bf473b82906143b5eddb",
-  "curation": "Exact source passages only. Site-authored titles and introductory navigation are separate. README Development lines 315-347 excluded. Compatibility line 41 selects complete caveat sentences, excluding internal issue references and native tool lists.",
+  "tag": "v0.2.0",
+  "commit": "f625bb5673650fef5849846fbb20a324a39dfb7c",
+  "curation": "Exact source passages only. Site-authored titles and introductory navigation are separate. README badges, its HTML comment, Contributing and Development are excluded. Compatibility notes are not imported: their current text carries internal issue references.",
   "pages": [
     {
       "slug": "index",
@@ -15,10 +15,18 @@
           "passages": [
             {
               "file": "README.md",
-              "start": 8,
-              "end": 13,
+              "start": 44,
+              "end": 53,
               "heading": "# Chittr",
-              "first": "This is an early hobby-project preview for macOS on Apple Silicon. It uses",
+              "first": "> **Early preview.** This is an early hobby-project preview for macOS on Apple Silicon. Other",
+              "last": "> run without Chittr's command sandbox, with your account's access."
+            },
+            {
+              "file": "README.md",
+              "start": 171,
+              "end": 172,
+              "heading": "## License",
+              "first": "Chittr is [MIT licensed](LICENSE); bundled libraries retain their",
               "last": "[third-party notices](THIRD_PARTY_NOTICES.md)."
             },
             {
@@ -37,8 +45,8 @@
           "passages": [
             {
               "file": "README.md",
-              "start": 17,
-              "end": 31,
+              "start": 57,
+              "end": 71,
               "heading": "## Install",
               "first": "Install Node.js and at least one of the provider CLIs below, then sign in with",
               "last": "```"
@@ -50,12 +58,20 @@
           "title": "Your first room",
           "passages": [
             {
-              "file": "README.md",
-              "start": 41,
-              "end": 45,
-              "heading": "## Install",
-              "first": "When no config exists, interactive setup offers to create `~/.agents/chittr.yaml`. It detects installed CLIs and requires you to choose which to enable. Choose Codex, Claude or Grok for this preview; leave Antigravity unselected if it appears. Nothing is selected automatically. Setup saves your choices under `defaultAgents`, with no model overrides or stock custom instructions, and starts with discussion and file inspection only. No personal config ships with the app. After setup, `chittr doctor` checks the configured supported providers and the tool sandbox without a chat turn. It does not prove that a model can answer or that its terms permit your use. Chat responses and the optional live tests use your normal subscription allowance.",
-              "last": "`chittr` always starts a new chat and preserves previous conversations. Run `chittr resume` to browse saved chats from this exact directory, most recently updated first. Use \u2191/\u2193 to select, Enter to resume, or Escape to cancel. Type to search conversation previews or session IDs; PgUp/PgDn and Home/End navigate longer lists. `chittr resume ID` opens a specific saved chat directly."
+              "file": "docs/configuration.md",
+              "start": 7,
+              "end": 9,
+              "heading": "## First-run setup",
+              "first": "When no config exists, interactive setup offers to create `~/.agents/chittr.yaml`. It detects installed CLIs and requires you to choose which to enable. Nothing is selected automatically. Setup saves your choices under `defaultAgents`, with no model overrides or stock custom instructions. No personal config ships with the app. [Install and set up](installation.md#install-and-set-up) lists the providers to choose for this preview and the permissions setup starts with.",
+              "last": "After setup, `chittr doctor` checks the configured supported providers and the tool sandbox without a chat turn. It does not prove that a model can answer or that its terms permit your use. Chat responses and the optional live tests use your normal subscription allowance."
+            },
+            {
+              "file": "docs/usage.md",
+              "start": 7,
+              "end": 9,
+              "heading": "## Launch directory and saved chats",
+              "first": "Launch in the exact directory agents should inspect. For example, launching in `~/Projects/your-project` gives the room that workspace. Launching in a nested directory gives it only that nested directory. The app does not search upward for a Git root or project config.",
+              "last": "`chittr` always starts a new chat and preserves previous conversations. Run `chittr resume` to browse saved chats from this exact directory, most recently updated first. Use ↑/↓ to select, Enter to resume, or Escape to cancel. Type to search conversation previews or session IDs; PgUp/PgDn and Home/End navigate longer lists. `chittr resume ID` opens a specific saved chat directly."
             }
           ]
         },
@@ -64,9 +80,9 @@
           "title": "Open the browser interface",
           "passages": [
             {
-              "file": "README.md",
-              "start": 49,
-              "end": 54,
+              "file": "docs/usage.md",
+              "start": 13,
+              "end": 18,
               "heading": "## Browser interface",
               "first": "```sh",
               "last": "This starts a new chat, runs a local server, and opens your default browser. If opening the browser fails, use the link printed in the terminal. The browser uses the same workspace, merged YAML, CLI subscriptions, permissions, and saved sessions as terminal chat. `chittr resume --web` selects a saved chat in the terminal before opening it in the browser; `chittr resume ID --web` opens it directly. `--state-dir PATH` also works with `--web`. First-time configuration still uses the terminal setup prompt."
@@ -99,11 +115,19 @@
           "title": "Your user configuration",
           "passages": [
             {
-              "file": "README.md",
-              "start": 78,
-              "end": 103,
-              "heading": "## Configuration",
+              "file": "docs/configuration.md",
+              "start": 13,
+              "end": 34,
+              "heading": "## Configuration files",
               "first": "User settings load first, then the launch directory's `.agents/chittr.yaml`. Human name, permissions, skills, and conversation settings merge field by field. There is no system-wide layer.",
+              "last": "```"
+            },
+            {
+              "file": "docs/configuration.md",
+              "start": 38,
+              "end": 40,
+              "heading": "## Your display name",
+              "first": "Set `human.name` in `~/.agents/chittr.yaml` to choose how you appear in the transcript and composer. Agents receive the current name on every turn so they can address you by name. Project config can override it; omission inherits your user setting, or defaults to `You` when neither file sets a name. Setup asks for the name when creating a user config. Changes apply on launch/resume or idle `/reload`, including the labels on existing messages.",
               "last": "`@human` remains the addressing token for you, and autocomplete labels it with your name. Saved conversations keep a stable identity, so changing your display name does not create a new participant or lose history."
             }
           ]
@@ -113,10 +137,10 @@
           "title": "Project participants",
           "passages": [
             {
-              "file": "README.md",
-              "start": 105,
-              "end": 126,
-              "heading": "## Configuration",
+              "file": "docs/configuration.md",
+              "start": 44,
+              "end": 65,
+              "heading": "## Participants",
               "first": "A project with an `agents` section uses exactly that roster. A project that omits `agents`, including a directory without a project config, uses your user-level `defaultAgents`. Agent definitions are self-contained: every entry requires `provider`, and project entries do not inherit models, enabled flags, or instructions from the fallback roster. An explicit `agents: {}` produces a configuration error; it does not activate defaults. `defaultAgents` belongs only in user config.",
               "last": "Only `astra` and `sol` join this project, addressed with their matching `@handles`. User-level Codex and Claude defaults do not join. Room settings still inherit normally."
             }
@@ -127,11 +151,19 @@
           "title": "Models and effort",
           "passages": [
             {
-              "file": "README.md",
-              "start": 128,
-              "end": 146,
-              "heading": "## Configuration",
+              "file": "docs/configuration.md",
+              "start": 69,
+              "end": 83,
+              "heading": "## Models and effort",
               "first": "`model` is optional. Codex and Claude inherit their CLI default; Grok uses the CLI's default in an isolated profile. Set `model` explicitly to choose another model. Set `enabled: false` to disable an entry in the selected roster.",
+              "last": "After editing `effort`, run `/reload` while all agents are idle. Only affected participants restart with fresh provider sessions and the saved public conversation, following the same lifecycle as a model change. `/config` shows each participant's configured effort and its source; `provider default` means Chittr did not override it."
+            },
+            {
+              "file": "docs/configuration.md",
+              "start": 87,
+              "end": 89,
+              "heading": "## Several providers in one room",
+              "first": "See [the three-provider project example](../examples/three-providers.yaml) to use Codex,",
               "last": "queues and terminal/browser controls."
             }
           ]
@@ -141,11 +173,19 @@
           "title": "Custom instructions",
           "passages": [
             {
-              "file": "README.md",
-              "start": 148,
-              "end": 168,
-              "heading": "## Configuration",
+              "file": "docs/configuration.md",
+              "start": 93,
+              "end": 111,
+              "heading": "## Custom instructions",
               "first": "Custom instruction sources are read in their listed order from the selected roster only. Provider guidance and the room protocol remain in place. For example:",
+              "last": "That file reference resolves to `.agents/instructions/review.md` beside the project config. Instruction files are explicit configuration inputs and may live outside the task workspace. They are read on launch or idle reload. Unused fallback instruction files are not read. Unknown fields, unreadable selected instructions, and per-agent permission policies are rejected. `/config` shows effective settings and their source files."
+            },
+            {
+              "file": "docs/configuration.md",
+              "start": 115,
+              "end": 115,
+              "heading": "## Migrating an older user config",
+              "first": "To migrate an existing user config, rename its top-level `agents` key to `defaultAgents`, preserving its contents. The old user-level key remains supported as a fallback alias; files are never rewritten automatically. Defining both keys in user config is an error. Existing project configs that relied on partial agent overrides must now specify `provider` and any desired agent settings themselves. The legacy `instructions.mode` field remains accepted, but sources no longer merge across user and project rosters.",
               "last": "To migrate an existing user config, rename its top-level `agents` key to `defaultAgents`, preserving its contents. The old user-level key remains supported as a fallback alias; files are never rewritten automatically. Defining both keys in user config is an error. Existing project configs that relied on partial agent overrides must now specify `provider` and any desired agent settings themselves. The legacy `instructions.mode` field remains accepted, but sources no longer merge across user and project rosters."
             }
           ]
@@ -155,12 +195,12 @@
           "title": "Room permissions",
           "passages": [
             {
-              "file": "README.md",
-              "start": 170,
-              "end": 180,
-              "heading": "## Configuration",
-              "first": "Permissions apply to the **whole room**. Project config can grant them directly, so inspect `.agents/chittr.yaml` before launching in an unfamiliar project:",
-              "last": "Edits, sandboxed shell commands, and task networking are independent grants. File inspection works with all three off. Agents explain missing permissions and ask for a YAML change followed by idle `/reload`; there are no temporary chat approvals. Provider authentication and inference traffic are separate from task networking. See [privacy and permissions](PRIVACY.md) for the trust boundaries."
+              "file": "docs/configuration.md",
+              "start": 119,
+              "end": 143,
+              "heading": "## Permissions",
+              "first": "Permissions apply to the whole room. There are three, and all start off:",
+              "last": "| `trusted`   | All three permissions `true`, plus a trust grant for this workspace | As your user account, with no sandbox                                                           |"
             }
           ]
         },
@@ -169,12 +209,12 @@
           "title": "Trusted commands",
           "passages": [
             {
-              "file": "README.md",
-              "start": 184,
-              "end": 201,
-              "heading": "### Trusted commands",
-              "first": "To use installed developer tools with their existing configuration and authentication, grant trusted commands to a workspace in your user config:",
-              "last": "Run `/reload` while idle after changing a persistent grant. Changes in command mode restart participants with current tools and instructions, restoring public conversation history. Resume and `/sessions ID` recalculate authorization from current settings and this process's launch flag. A saved conversation cannot restore an old grant or a previous process's one-off flag. The environment is captured once at launch; relaunch Chittr to pick up exported environment changes."
+              "file": "docs/configuration.md",
+              "start": 147,
+              "end": 183,
+              "heading": "## Trusted commands",
+              "first": "Sandboxed commands work for builds and tests that stay inside the workspace. They can't use your accounts. They can't read the rest of your home directory, and Chittr starts them with only `PATH`, `LANG` and `TMPDIR` set, so `HOME`, tokens and your SSH agent are missing. Homebrew's `bin` directory isn't on their `PATH`. Commands that rely on your logins, such as `gh pr create` or `git push` over SSH, fail.",
+              "last": "Run `/reload` while idle after changing a grant. A mode change restarts participants with current tools and instructions, then restores the public conversation. Resume and `/sessions ID` recompute the mode from current settings and this process's launch flag. A saved conversation can't bring back an old grant or a previous launch's flag. Chittr captures the environment once at launch, so relaunch to pick up exported changes."
             }
           ]
         },
@@ -183,9 +223,9 @@
           "title": "Skills",
           "passages": [
             {
-              "file": "README.md",
-              "start": 205,
-              "end": 226,
+              "file": "docs/configuration.md",
+              "start": 187,
+              "end": 208,
               "heading": "## Skills",
               "first": "Skills are enabled by default for the whole room. Each agent receives a catalogue of its provider's installed skills and reads the relevant `SKILL.md` through the room's file tools. You can ask for one by name, for example: `@codex Use the review skill to inspect this proposal.` Skills marked `disable-model-invocation: true` are listed with instructions to use them only when you explicitly request them.",
               "last": "This disables the room's skill catalogue and additional file access. Ordinary files already inside the workspace remain readable. Chittr supplies skill instructions through its own tools; native skill slash commands, automatic shell snippets, hooks, and skill-spawned agents remain disabled."
@@ -204,20 +244,20 @@
           "title": "Addressing agents and answering questions",
           "passages": [
             {
-              "file": "README.md",
-              "start": 230,
-              "end": 242,
-              "heading": "## Conversation and terminal keyboard",
+              "file": "docs/usage.md",
+              "start": 48,
+              "end": 64,
+              "heading": "## Conversation",
               "first": "Send ordinary text to invite every enabled agent to consider it. Prefix a message with `@codex`, `@claude`, or multiple names to direct it. `@human` addresses only you. Directed messages remain public context. Mentions later in the body do not route messages.",
               "last": "The participant strip shows connection state, considering/replying/tool activity, explicit waiting for you, pauses, and queued or unresolved work. Delivery lines distinguish queued, sent, received, contributed, passed, interrupted, and failed. Receipt is a provider acknowledgment, not a claim about understanding."
             },
             {
-              "file": "README.md",
-              "start": 270,
-              "end": 276,
-              "heading": "## Controls and recovery",
+              "file": "docs/usage.md",
+              "start": 100,
+              "end": 100,
+              "heading": "### Pins",
               "first": "Pins are saved with each conversation and survive resume. Pin any human or agent message with `/pin #m1`, remove it with `/unpin #m1`, and use `/pins` to read all pins in conversation order. The browser also has a Pin button on each message and a Pinned messages list with copy, unpin, and go-to-message controls. Pinning and viewing pins do not send messages to agents or change their context.",
-              "last": "Decision questions require two to six distinct choices; free-text questions have no choices and show their input immediately. Choices that look like commands or @mentions remain literal answer text. Answering never changes YAML permissions or releases pauses. Older saved questions keep their historical answers and use the original message as their prompt. Remaining old questions require explicit final submission. Unpublished drafts and transient waiting flags are not converted into question records."
+              "last": "Pins are saved with each conversation and survive resume. Pin any human or agent message with `/pin #m1`, remove it with `/unpin #m1`, and use `/pins` to read all pins in conversation order. The browser also has a Pin button on each message and a Pinned messages list with copy, unpin, and go-to-message controls. Pinning and viewing pins do not send messages to agents or change their context."
             }
           ]
         },
@@ -226,18 +266,18 @@
           "title": "Pause, stop and recover",
           "passages": [
             {
-              "file": "README.md",
-              "start": 62,
-              "end": 62,
+              "file": "docs/usage.md",
+              "start": 26,
+              "end": 26,
               "heading": "## Browser interface",
-              "first": "Use the room buttons to pause, stop, continue, or quit. Each agent's `\u00b7\u00b7\u00b7` button opens its individual controls. Failed and interrupted deliveries have retry buttons; capped exchanges offer additional follow-up turns. All existing slash commands also work. The sidebar opens saved conversations and effective configuration. Configuration changes still require YAML edits and an idle reload. Restored sessions start active; queued messages run as agents connect, while failed and interrupted deliveries still require an explicit retry.",
-              "last": "Use the room buttons to pause, stop, continue, or quit. Each agent's `\u00b7\u00b7\u00b7` button opens its individual controls. Failed and interrupted deliveries have retry buttons; capped exchanges offer additional follow-up turns. All existing slash commands also work. The sidebar opens saved conversations and effective configuration. Configuration changes still require YAML edits and an idle reload. Restored sessions start active; queued messages run as agents connect, while failed and interrupted deliveries still require an explicit retry."
+              "first": "Use the room buttons to pause, stop, continue, or quit. Each agent's `···` button opens its individual controls. Failed and interrupted deliveries have retry buttons; capped exchanges offer additional follow-up turns. All existing slash commands also work. The sidebar opens saved conversations and effective configuration. Configuration changes still require YAML edits and an idle reload. Restored sessions start active; queued messages run as agents connect, while failed and interrupted deliveries still require an explicit retry.",
+              "last": "Use the room buttons to pause, stop, continue, or quit. Each agent's `···` button opens its individual controls. Failed and interrupted deliveries have retry buttons; capped exchanges offer additional follow-up turns. All existing slash commands also work. The sidebar opens saved conversations and effective configuration. Configuration changes still require YAML edits and an idle reload. Restored sessions start active; queued messages run as agents connect, while failed and interrupted deliveries still require an explicit retry."
             },
             {
-              "file": "README.md",
-              "start": 303,
-              "end": 305,
-              "heading": "## Controls and recovery",
+              "file": "docs/usage.md",
+              "start": 131,
+              "end": 133,
+              "heading": "### Pauses, failures and follow-up turns",
               "first": "Room and participant pauses are independent. Continuing one participant does not clear a room pause. After a failure, use `/reconnect @name`, `/retry #message @name`, then `/continue @name` (and `/continue` if the room is paused). Completed responses are never automatically retried. Stop does not roll back file or command side effects.",
               "last": "Each human message starts an exchange with eight shared follow-up turns by default. Initial replies to the human are exempt. Follow-up passes and dispatched failed/interrupted attempts count. A batched turn charges each represented exchange once. An exhausted exchange parks while independent work continues; ordinary `/continue` does not replenish its allowance."
             }
@@ -248,19 +288,19 @@
           "title": "Working in the browser",
           "passages": [
             {
-              "file": "README.md",
-              "start": 56,
-              "end": 60,
+              "file": "docs/usage.md",
+              "start": 20,
+              "end": 24,
               "heading": "## Browser interface",
               "first": "The browser provides a shared transcript, Markdown and code blocks, message/code copy buttons, live agent status, and a fixed composer. Normal selection and copy/paste work. Enter sends; Shift+Enter, Ctrl+Enter, or Ctrl+J insert a newline. Leading `@names` autocomplete as you type. Tab completes names, slash commands, and workspace file references. Incoming replies preserve the draft and history position; **Jump to latest** resumes following the conversation.",
               "last": "Click **Reply** on a message to quote it above the composer, then type and send. Your existing draft stays in place. **Cancel reply** or Escape removes the reply target without discarding your text. The target stays with your draft across refresh and saved-session resume. Sent replies link back to the original message."
             },
             {
-              "file": "README.md",
-              "start": 68,
-              "end": 74,
-              "heading": "## Browser interface",
-              "first": "The sidebar shows each agent's provider, configured model, and effort, including disabled agents. Enabled agents also show whether current initial-image support is available, not observed, or unsupported. The browser agent cards and `/participants` show the same status and a safe reason when support is unavailable; disabled agents omit it. Unset model or effort values read `provider default`. In the terminal, `/participants` lists the same settings alongside connection, activity, pause/stop state, queue counts, and any detail or error. It also works in browser chat. Both views reflect settings applied on launch or `/reload`.",
+              "file": "docs/usage.md",
+              "start": 36,
+              "end": 44,
+              "heading": "### Participants and context usage",
+              "first": "The sidebar shows each agent's provider, configured model, and effort, including disabled agents. `/participants` also shows each enabled agent's current initial-image support (available, not observed, or unsupported) and a safe reason when support is unavailable; disabled agents omit it. Unset model or effort values read `provider default`. In the terminal, `/participants` lists the same settings alongside connection, activity, pause/stop state, queue counts, and any detail or error. It also works in browser chat. Both views reflect settings applied on launch or `/reload`.",
               "last": "The server binds only to `127.0.0.1` on an available port. Its browser link contains a per-launch access token. The server checks authentication, Host, and Origin for room access. It serves only bundled UI assets; file completion follows the existing workspace boundary. Message HTML and remote images are not rendered. No hosted service or browser-side provider credentials are needed."
             }
           ]
@@ -270,40 +310,20 @@
           "title": "Images and provider limits",
           "passages": [
             {
-              "file": "README.md",
-              "start": 64,
-              "end": 66,
-              "heading": "## Browser interface",
-              "first": "Paste, drop, or select PNG images with **Attach images**. The host accepts up to four images, 1 MiB each and 3 MiB total. Pending uploads show filenames; accepted images show previews. Remove or retry failed uploads before sending. Captions are optional, including replies. Leading `@names` still select recipients. When a PNG is staged, the browser and terminal show the current `not_observed` or `unsupported` status for resolved recipients before send. The warning does not block sending or predict whether a message will be attempted or queued. Previews confirm storage, while the delivery status reports whether a provider could receive the images.",
-              "last": "Staged and sent images are saved as host references. Reload or reopen the current browser link to restore them; after restarting the host, open its new link to authenticate image reads. **View image** opens a larger view, and Escape closes it. **Check last action** retries an unknown attachment-send result using its saved identity, including after restart. An interrupted upload can be retried with the same file; the browser retains its operation identity but does not save the image bytes. See [image limitations](docs/installation.md#provider-and-image-limits) for this preview."
+              "file": "docs/usage.md",
+              "start": 30,
+              "end": 32,
+              "heading": "### Images",
+              "first": "Paste, drop, or select images with **Attach images**. Pending uploads show filenames; accepted images show previews. Remove or retry failed uploads before sending. Captions are optional, including replies. Leading `@names` still select recipients. When an image is staged for a recipient that can't receive it, the composer shows one line per affected recipient, such as `@antigravity can't receive images`. The warning does not block sending or predict whether a message will be attempted or queued. [Provider and image limits](installation.md#provider-and-image-limits) gives the accepted formats and sizes, browser conversion, which providers can receive images, where the full reason for a warning appears, and what previews and delivery status prove.",
+              "last": "Staged and sent images are saved as host references. Reload or reopen the current browser link to restore them; after restarting the host, open its new link to authenticate image reads. **View image** opens a larger view, and Escape closes it. **Check last action** retries an unknown attachment-send result using its saved identity, including after restart. An interrupted upload can be retried with the same file; the browser retains its operation identity but does not save the image bytes. After a reload, select the original file again: a converted image is converted again and resumes the same upload only when the result matches what was sent."
             },
             {
               "file": "docs/installation.md",
               "start": 146,
-              "end": 176,
+              "end": 189,
               "heading": "## Provider and image limits",
               "first": "Codex, Claude Code and Grok Build use version-sensitive native protocols. A CLI",
               "last": "image continuity is unavailable."
-            },
-            {
-              "file": "docs/compatibility.md",
-              "start": 32,
-              "end": 39,
-              "heading": "### Enabled image paths",
-              "first": "Each participant reports initial delivery and historical retrieval separately. When initial delivery is unavailable for a participant, a message that carries an image is not delivered to that participant at all, caption included. Its delivery fails for that participant only, with a reason and a notice, and nothing is charged or retried automatically. The participant stays connected, messages without images still reach it, and the other recipients are unaffected.",
-              "last": "| Antigravity | Never. Antigravity images are unsupported in this release                                                                                                                                                                                           | None                                                                                                                                             |"
-            },
-            {
-              "file": "docs/compatibility.md",
-              "start": 41,
-              "end": 41,
-              "heading": "### Enabled image paths",
-              "first": "A resumed Codex thread, a mixed room configuration and a missing observation all stay closed. An unrecorded Codex or Claude build does not: since #85 their CLI version does not decide image eligibility in either direction. Since #105 neither does any provider's requested or observed model or effort: an explicit Grok model request, Codex `gpt-6-astra` at `high`, or a Claude model other than `opus` keeps its paths open when the live checks pass, and a model that cannot take images fails the delivery with the provider's own error. Grok retains its recognized live-identity requirement and legacy 1.0.13 restricted-room limit. A build or model the dated probes once exercised gains no support from that, and an unlisted build or untested model that keeps its paths open has not been visually tested. Codex `view_image` and `image_generation`, Grok `image_gen` and Antigravity's native task tools stay denied.",
-              "last": "A resumed Codex thread, a mixed room configuration and a missing observation all stay closed. An unrecorded Codex or Claude build does not: since #85 their CLI version does not decide image eligibility in either direction. Since #105 neither does any provider's requested or observed model or effort: an explicit Grok model request, Codex `gpt-6-astra` at `high`, or a Claude model other than `opus` keeps its paths open when the live checks pass, and a model that cannot take images fails the delivery with the provider's own error. Grok retains its recognized live-identity requirement and legacy 1.0.13 restricted-room limit. A build or model the dated probes once exercised gains no support from that, and an unlisted build or untested model that keeps its paths open has not been visually tested. Codex `view_image` and `image_generation`, Grok `image_gen` and Antigravity's native task tools stay denied.",
-              "exactSpans": [
-                "A resumed Codex thread, a mixed room configuration and a missing observation all stay closed.",
-                "Grok retains its recognized live-identity requirement and legacy 1.0.13 restricted-room limit. A build or model the dated probes once exercised gains no support from that, and an unlisted build or untested model that keeps its paths open has not been visually tested."
-              ]
             }
           ]
         },
@@ -312,12 +332,12 @@
           "title": "Saved conversations",
           "passages": [
             {
-              "file": "README.md",
-              "start": 307,
-              "end": 313,
-              "heading": "## Controls and recovery",
+              "file": "docs/usage.md",
+              "start": 137,
+              "end": 143,
+              "heading": "## Saved conversations and recovery",
               "first": "Each `chittr` launch starts a new room. Use `chittr resume` to choose a saved conversation for this directory, or `chittr resume ID` to open one directly. Resuming clears saved room and participant pauses, reconnects enabled agents, and runs eligible queued messages without `/continue`. Failed and interrupted deliveries still need `/retry`; follow-up limits and disabled-agent settings remain in force. This also applies to `--session ID`, web resume, and opening a saved conversation with `/sessions ID`. Cancelling the picker starts no agents and leaves saved chats unchanged; an empty history suggests starting a new chat. The existing `--new` and `--session ID` flags remain supported.",
-              "last": "Grok keeps its native process for consecutive turns. On reconnect or application restart, it starts fresh and discloses restoration from the saved public conversation. Its temporary native profile is removed on close. Grok uses its existing native auth-file location. Your normal Grok settings, hooks and plugins are not loaded into this profile. Put custom guidance in Chittr's YAML instruction sources."
+              "last": "Grok keeps its native process for consecutive turns. On reconnect or application restart, it starts fresh and discloses restoration from the saved public conversation. It runs in a temporary native profile, which [privacy and permissions](../PRIVACY.md#what-stays-on-your-mac) describes. Grok uses its existing native auth-file location. Your normal Grok settings, hooks and plugins are not loaded into this profile. Put custom guidance in Chittr's YAML [instruction sources](configuration.md#custom-instructions)."
             }
           ]
         },
@@ -326,12 +346,12 @@
           "title": "Compact context",
           "passages": [
             {
-              "file": "README.md",
-              "start": 350,
-              "end": 415,
-              "heading": "### Compact context",
+              "file": "docs/usage.md",
+              "start": 147,
+              "end": 212,
+              "heading": "## Context compaction",
               "first": "Use `/compact` for all enabled, connected agents or `/compact @agent` for one.",
-              "last": "and [preview provider limits](docs/installation.md#provider-and-image-limits)."
+              "last": "and [preview provider limits](installation.md#provider-and-image-limits)."
             }
           ]
         },
@@ -340,10 +360,10 @@
           "title": "Keyboard and file navigation",
           "passages": [
             {
-              "file": "README.md",
-              "start": 244,
-              "end": 266,
-              "heading": "## Conversation and terminal keyboard",
+              "file": "docs/usage.md",
+              "start": 68,
+              "end": 94,
+              "heading": "## Terminal keyboard",
               "first": "| Key                 | Action                                                                     |",
               "last": "Type `./` in either composer to open the file explorer at the launch directory. An opening backtick before `./` also works. Keep typing to filter, use Up/Down to choose an entry, and press Enter or Tab to open a folder or insert a file path. You can also click an entry. Selecting a file wraps the entire path in backticks and adds a space after the closing backtick. Folder selections stay open for browsing, with spaces in folder names quoted automatically. Left returns to the parent folder in the CLI; use the Up button or Alt+Up in the web UI. Escape closes the explorer. Files outside the launch directory and symlinks are excluded."
             }
@@ -354,10 +374,10 @@
           "title": "Command reference",
           "passages": [
             {
-              "file": "README.md",
-              "start": 278,
-              "end": 301,
-              "heading": "## Controls and recovery",
+              "file": "docs/usage.md",
+              "start": 104,
+              "end": 127,
+              "heading": "### Room commands",
               "first": "| Command                            | Action                                                                             |",
               "last": "| `/quit`                            | Stop, save, and exit                                                               |"
             }

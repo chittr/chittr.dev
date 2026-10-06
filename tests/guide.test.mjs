@@ -36,8 +36,8 @@ test('guide contains release text and complete examples, omits developer command
   assert.match(pages.configuration, /Trusted commands have broader account access, including skill writes/);
   assert.match(pages.configuration, /version: 1\nhuman:/);
   assert.match(pages.configuration, /version: 1\nagents:\n  astra:/);
-  assert.match(pages.usage, /caption included/);
-  assert.match(pages.usage, /resumed Codex thread, a mixed room configuration/);
+  assert.match(pages.usage, /the whole message including its caption is withheld/);
+  assert.match(pages.usage, /Images need no room configuration/);
   assert.match(pages.usage, /Changed provider\/model\/effort\/custom instructions also start a fresh session/);
   assert.match(pages.usage, /requires <code>\/reconnect @agent<\/code>/);
   assert.match(pages.usage, /Stop does not roll back file or command side effects/);
