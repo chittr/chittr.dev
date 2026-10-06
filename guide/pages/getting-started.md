@@ -1,10 +1,10 @@
 ## Requirements {#requirements}
 
-Chittr is an early preview, built for macOS on Apple Silicon.
+Chittr is an early preview for macOS.
 
 | Requirement | Details |
 | --- | --- |
-| Mac | Apple Silicon. Intel Macs, Linux and WSL2 are untested. |
+| Operating system | macOS. Linux and WSL2 are untested. |
 | Node.js | 22.12.0 or newer. |
 | Provider CLI | At least one of Codex, Claude Code or Grok Build, signed in with a subscription. API keys aren't supported. |
 
