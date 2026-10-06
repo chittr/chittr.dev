@@ -32,6 +32,8 @@ test('built site has only the public allowlist and stable output', async () => {
   execFileSync(process.execPath, ['scripts/build.mjs'], { cwd: root });
   assert.deepEqual(await tree(join(root, 'dist')), first);
   assert.equal(first['guide/LICENSE.txt'], sources.LICENSE);
+  // Chittr is described as a macOS app, not one tied to a Mac chip.
+  for (const page of Object.keys(first).filter((name) => name.endsWith('.html'))) assert.doesNotMatch(first[page], /Apple Silicon/i, page);
   // GitHub appears only as each guide page's link to the documented release.
   assert.doesNotMatch(first['index.html'], /github\.com/);
   for (const page of ['guide/index.html', 'guide/configuration/index.html', 'guide/usage/index.html']) {
