@@ -34,8 +34,8 @@ test('built site has only the public allowlist and stable output', async () => {
   assert.equal(first['guide/LICENSE.txt'], sources.LICENSE);
   // Chittr is described as a macOS app, not one tied to a Mac chip.
   for (const page of Object.keys(first).filter((name) => name.endsWith('.html'))) assert.doesNotMatch(first[page], /Apple Silicon/i, page);
-  // GitHub appears only as each guide page's link to the documented release.
-  assert.doesNotMatch(first['index.html'], /github\.com/);
+  // GitHub appears only as the homepage footer's changelog link and each guide page's link to the documented release.
+  assert.deepEqual(first['index.html'].match(/https:\/\/github\.com\/[^"]*/g), ['https://github.com/chittr/chittr/blob/main/CHANGELOG.md']);
   for (const page of ['guide/index.html', 'guide/configuration/index.html', 'guide/usage/index.html']) {
     assert.deepEqual(first[page].match(/https:\/\/github\.com\/[^"]*/g), [`https://github.com/${map.repository}/tree/${map.commit}`], page);
   }

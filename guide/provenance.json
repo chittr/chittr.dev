@@ -1,13 +1,13 @@
 {
   "repository": "chittr/chittr",
   "tag": "v0.3.0",
-  "commit": "5c192c3442b4b4b1fca137786544765a1f43cb55",
+  "commit": "d655141aa7c006ae9806cedfbdc06b4bc025f97e",
   "files": {
     "LICENSE": "c1c71b45353a5fa04caac9b3456230fa8fa92104",
     "PRIVACY.md": "416e13c0a58659234ea94bb14065ef80dba70635",
     "README.md": "adc39c257320166abc2fc6b7f84b34a5131760ff",
     "docs/configuration.md": "f594d74a95aab1745e32c98e886cf2a7dc3586a8",
-    "docs/installation.md": "7691b2e8ca76c4c81dbda40bb25225993a5f3b2c",
+    "docs/installation.md": "2a956bb835152ea8acc4b27befcb9b199ad5d407",
     "docs/terminal-images.md": "1a0fceeb47bfb28ff57de4a6f51fd7013e55fbb2",
     "docs/usage.md": "1ca8aa33c264acb56d1a66b26dd6653d1c7976c5",
     "examples/project.yaml": "905d27d207508b12532a66206bb97f5b2e8ea049",

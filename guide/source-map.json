@@ -1,7 +1,7 @@
 {
   "repository": "chittr/chittr",
   "tag": "v0.3.0",
-  "commit": "5c192c3442b4b4b1fca137786544765a1f43cb55",
+  "commit": "d655141aa7c006ae9806cedfbdc06b4bc025f97e",
   "curation": "Every page is written on this site and checked against the release files it references. Tests cover commands, settings and stated requirements; descriptions are reviewed by hand against each release.",
   "pages": [
     {

@@ -37,7 +37,7 @@ chittr --new --web --instructions-file ./review-brief.md
 ```
 
 - Chittr reads the file once and saves its text with the new chat. Editing or deleting the file later changes nothing.
-- Resuming the chat restores its brief, and `/new` starts without one. You can't change or clear a saved brief, so start a new chat to use a different one.
+- Resuming the chat or running `/reload` keeps its brief, and `/new` starts without one. `/config` shows where it came from. You can't change or clear a saved brief, so start a new chat to use a different one.
 - The path is relative to the launch directory, absolute, or starts with `~/`. Quote paths with spaces.
 - A file over 1 MiB, or one that can't be read, stops the launch before any agent starts.
 - It can't be combined with `resume`, `--session` or `doctor`.
