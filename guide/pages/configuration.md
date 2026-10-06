@@ -44,6 +44,7 @@ Changes apply on launch, on resume, or when you run `/reload` while all agents a
 | `defaultAgents` | User | | Your fallback participants. |
 | `agents` | Project | | This project's participants. Replaces `defaultAgents`. |
 | `trustedCommands.workspaces` | User | | Workspaces where commands may run without the sandbox. |
+| `instructions.sources` | Both | | Instructions for every agent in the room. See [custom instructions](#instructions). |
 
 Unknown keys are rejected. `@human` always addresses you, whatever your display name.
 
@@ -75,7 +76,7 @@ Each agent takes these fields:
 | `model` | No | Model name. Omit it to use the CLI's default. |
 | `effort` | No | Reasoning effort. Omit it to use the CLI's default. See [models and effort](#models). |
 | `enabled` | No | Set to `false` to leave the agent out of the room. |
-| `instructions.sources` | No | Extra instructions, read in order. See [custom instructions](#instructions). |
+| `instructions.sources` | No | Instructions for this agent only. See [custom instructions](#instructions). |
 
 - Each entry stands alone. Project entries don't inherit a model, instructions or anything else from `defaultAgents`.
 - Saved chats identify agents by name. Renaming one creates a new participant, so keep names stable when you resume.
@@ -112,9 +113,15 @@ Accepted `effort` levels:
 
 ## Custom instructions {#instructions}
 
+Instructions can go to the whole room or to one agent.
+
 ```yaml
 # <launch directory>/.agents/chittr.yaml
 version: 1
+instructions:
+  sources:
+    - file: instructions/room.md
+    - text: Discuss proposals before making changes.
 agents:
   codex:
     provider: codex
@@ -133,12 +140,15 @@ Each source is one of:
 | Source | Description |
 | --- | --- |
 | `text` | Instructions written inline. |
-| `file` | A file path, relative to the YAML file that names it. The example reads `.agents/instructions/review.md`. |
+| `file` | A file path, relative to the YAML file that names it, absolute, or starting with `~/`. The example reads `.agents/instructions/room.md`. Up to 1 MiB. |
 
-- Sources are read in order, at launch and on `/reload`. Files may live outside the workspace.
-- They add to the provider's own guidance and the room protocol, and don't replace them.
-- Only the selected roster's sources are read. A project's `agents` don't merge with your `defaultAgents` instructions.
-- An unreadable file is an error.
+- Top-level `instructions.sources` go to every agent in the room. An agent's own `instructions.sources` go to that agent only.
+- A project's top-level `instructions` replace your user file's as a whole. Leave them out to inherit yours, or set `instructions: {}` to clear them. A project file with only `instructions` still uses your `defaultAgents`.
+- Agent instructions come only from the selected roster. A project's `agents` don't merge with your `defaultAgents` instructions.
+- Sources are read in order, on launch, resume and `/reload`. Files may live outside the workspace. An unreadable file is an error.
+- Instructions add to the provider's own guidance and the room protocol, and grant no permissions.
+- A [shared brief](/guide/usage/#brief) from `--instructions-file` takes precedence over room instructions, and room instructions over agent instructions.
+- After editing them, run `/reload` while idle. Only the agents they affect restart, with the saved conversation. `/config` shows which sources are active.
 
 ## Permissions {#permissions}
 
