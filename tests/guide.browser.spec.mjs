@@ -48,7 +48,8 @@ for (const colorScheme of ['light', 'dark']) for (const width of [375, 1280]) {
 
 test('keyboard focus, denied clipboard, direct section URLs and no JavaScript', async ({ page, browser }) => {
   await page.goto('/guide/usage/');
-  await expect(page.locator('#commands table thead')).toContainText('Command');
+  await expect(page.locator('#cli table thead').first()).toContainText('Command');
+  await expect(page.locator('#controls table thead')).toContainText('Command');
   await expect(page.locator('#keyboard table thead')).toContainText('Key');
   await expect(page.locator('#controls')).toContainText('Stop does not roll back');
   await page.goto('/guide/configuration/#trusted-commands');

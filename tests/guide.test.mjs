@@ -7,10 +7,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { loadGuide, selectPassage, renderGuide, markdown, blobHash } from '../scripts/guide.mjs';
+import { loadGuide, selectPassage, renderGuide, parseSitePage, markdown, blobHash } from '../scripts/guide.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const { map, sources } = await loadGuide();
+const { map, sources, site } = await loadGuide();
 async function tree(directory, prefix = '') {
   const result = {};
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -31,32 +31,88 @@ test('built site has only the public allowlist and stable output', async () => {
 });
 
 test('guide contains release text and complete examples, omits developer commands and moving app links', () => {
-  const pages = Object.fromEntries(map.pages.map((page) => [page.slug, renderGuide(map, sources, page)]));
+  const pages = Object.fromEntries(map.pages.map((page) => [page.slug, renderGuide(map, sources, page, site)]));
   assert.match(pages.configuration, /A project with an <code>agents<\/code> section uses exactly that roster/);
   assert.match(pages.configuration, /Trusted commands have broader account access, including skill writes/);
   assert.match(pages.configuration, /version: 1\nhuman:/);
   assert.match(pages.configuration, /version: 1\nagents:\n  astra:/);
-  assert.match(pages.usage, /the whole message including its caption is withheld/);
-  assert.match(pages.usage, /Images need no room configuration/);
-  assert.match(pages.usage, /Changed provider\/model\/effort\/custom instructions also start a fresh session/);
-  assert.match(pages.usage, /requires <code>\/reconnect @agent<\/code>/);
-  assert.match(pages.usage, /Stop does not roll back file or command side effects/);
-  assert.match(pages.usage, /Failed and interrupted deliveries still need <code>\/retry<\/code>/);
   assert.match(pages.index, /chittr resume --web/);
+  assert.match(pages.usage, /Stop does not roll back file edits or command side effects/);
+  assert.match(pages.usage, /Failed and interrupted deliveries still need <code>\/retry<\/code>/);
+  assert.match(pages.usage, /gets nothing from that message, not even the caption/);
   assert.match(pages.usage, /Check last action/);
-  for (const id of ['commands', 'keyboard']) {
+  for (const id of ['cli', 'controls', 'keyboard']) {
     const section = pages.usage.split(`<section id="${id}"`)[1].split('</section>')[0];
     assert.match(section, /<table>/);
     assert.match(section, /<thead>/);
     assert.match(section, /<tbody>/);
   }
   assert.doesNotMatch(pages.usage, /<p>\|/);
-  assert.ok(pages.usage.indexOf('id="compaction"') < pages.usage.indexOf('id="commands"'));
+  // The usage reference cites no app source files.
+  for (const section of pages.usage.match(/<section[\s\S]*?<\/section>/g)) assert.doesNotMatch(section, /github\.com|\.md\b/);
   for (const html of Object.values(pages)) {
     assert.match(html, /Documented release/);
     assert.match(html, new RegExp(map.commit));
+    assert.doesNotMatch(html, /Release source/);
     assert.doesNotMatch(html, /blob\/main\/|npm run test:|#85|#105|<h[1-6][^>]*>Development/);
   }
+});
+
+// Inline code and code-block lines from Markdown, where commands are written.
+function codeOf(text) {
+  const result = [];
+  const visit = (tokens) => {
+    for (const token of tokens) {
+      if (token.type === 'code_inline') result.push(token.content);
+      if (token.type === 'fence') result.push(...token.content.split('\n'));
+      if (token.children) visit(token.children);
+    }
+  };
+  visit(markdown.parse(text, {}));
+  return result;
+}
+
+// Room commands, /attach actions, chittr subcommands and chittr flags named in code.
+function commandsIn(code) {
+  const found = new Set();
+  for (const text of code) {
+    const room = /^\/([a-z][a-z-]*)(?=\s|$)/.exec(text);
+    if (room) found.add(`/${room[1]}`);
+    const attach = /^\/attach (--[a-z]+)/.exec(text);
+    if (attach) found.add(`/attach ${attach[1]}`);
+    const sub = /^chittr ([a-z]+)/.exec(text);
+    if (sub) found.add(`chittr ${sub[1]}`);
+    if (/^(chittr\b|--[a-z])/.test(text)) for (const [flag] of text.matchAll(/--[a-z][a-z-]*/g)) found.add(flag);
+  }
+  return found;
+}
+
+test('usage reference covers every command in the pinned release and invents none', () => {
+  const usage = map.pages.find((page) => page.slug === 'usage');
+  const release = commandsIn(usage.references.flatMap((file) => codeOf(sources[file])));
+  // Flag-like code in the documents that is not a chittr option.
+  const notChittrFlags = { '--effort': "Claude Code's flag", '--reasoning-effort': "Grok Build's flag", '--list': 'a file name in an /attach example' };
+  for (const flag of Object.keys(notChittrFlags)) release.delete(flag);
+  const page = commandsIn(codeOf(site[usage.file]));
+  const missing = [...release].filter((command) => !page.has(command));
+  assert.deepEqual(missing, [], 'Document these release commands on the usage page');
+  // `chittr doctor --json` appears only in the released CLI's --help output.
+  const unknown = [...page].filter((command) => !release.has(command) && command !== '--json');
+  assert.deepEqual(unknown, [], 'These commands are not in the pinned release documents');
+  for (const command of ['/pause', '/attach --status', 'chittr resume', '--trusted-commands']) assert.ok(release.has(command), command);
+});
+
+test('site-authored pages need section ids and cannot link to source files', () => {
+  assert.throws(() => parseSitePage('Intro\n\n## One {#one}\n'), /start with a section heading/);
+  assert.throws(() => parseSitePage('## One\n'), /unique \{#id\}/);
+  assert.throws(() => parseSitePage('## One {#one}\n\n## Two {#one}\n'), /unique \{#id\}/);
+  assert.throws(() => parseSitePage('# Title\n\n## One {#one}\n'), /title from the source map/);
+  assert.deepEqual(parseSitePage('## One {#one}\n\nText.\n\n### Detail\n\n## Two {#two}\n').map(({ id, title }) => [id, title]), [['one', 'One'], ['two', 'Two']]);
+  const usage = map.pages.find((page) => page.slug === 'usage');
+  for (const link of ['[x](https://github.com/chittr/chittr/blob/v0.2.0/docs/usage.md)', '[x](docs/usage.md)', '[x](http://example.com)']) {
+    assert.throws(() => renderGuide(map, sources, usage, { [usage.file]: `## One {#one}\n\n${link}\n` }), /Unsupported site link/);
+  }
+  assert.throws(() => renderGuide(map, sources, usage, {}), /Missing site-authored page/);
 });
 
 // Import synthetic Git objects as test data. No network, commits through a user's
@@ -136,11 +192,14 @@ test('missing or moved source selections fail instead of producing partial docum
 });
 
 test('app links require pinned files and fragments, including absolute main URLs', () => {
-  const usage = map.pages.find((page) => page.slug === 'usage');
-  const html = renderGuide(map, sources, usage);
+  // No imported passage currently links to app source by absolute URL, so a fixture passage does.
+  const line = 'See [maintenance](https://github.com/chittr/chittr/blob/main/docs/architecture.md#context-maintenance).';
+  const page = { slug: 'usage', title: 'Fixture', intro: 'Fixture.', sections: [{ id: 'fixture', title: 'Fixture', passages: [{ file: 'README.md', start: 3, end: 3, heading: '# Fixture', first: line, last: line }] }] };
+  const fixture = { ...sources, 'README.md': `# Fixture\n\n${line}\n`, 'docs/architecture.md': '# Architecture\n\n## Context maintenance\n' };
+  const html = renderGuide(map, fixture, page);
   assert.ok(html.includes(`/blob/${map.commit}/docs/architecture.md#context-maintenance`));
-  assert.throws(() => renderGuide(map, { ...sources, 'docs/architecture.md': undefined }, usage), /Unverified source link/);
-  assert.throws(() => renderGuide(map, { ...sources, 'docs/architecture.md': '# Nothing here\n' }, usage), /Unverified source fragment/);
+  assert.throws(() => renderGuide(map, { ...fixture, 'docs/architecture.md': undefined }, page), /Unverified source link/);
+  assert.throws(() => renderGuide(map, { ...fixture, 'docs/architecture.md': '# Nothing here\n' }, page), /Unverified source fragment/);
   assert.equal(markdown.render('<script>alert(1)</script>\n'), '<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>\n');
 });
 

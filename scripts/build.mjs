@@ -4,8 +4,8 @@ import { loadGuide, renderGuide } from './guide.mjs';
 
 const root = new URL('../', import.meta.url);
 const output = new URL('dist/', root);
-const { map, sources } = await loadGuide();
-const pages = map.pages.map((page) => [page, renderGuide(map, sources, page)]);
+const { map, sources, site } = await loadGuide();
+const pages = map.pages.map((page) => [page, renderGuide(map, sources, page, site)]);
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 // Only public assets and rendered documentation. Never publish source snapshots or tooling.

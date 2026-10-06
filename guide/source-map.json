@@ -2,7 +2,7 @@
   "repository": "chittr/chittr",
   "tag": "v0.2.0",
   "commit": "f625bb5673650fef5849846fbb20a324a39dfb7c",
-  "curation": "Exact source passages only. Site-authored titles and introductory navigation are separate. README badges, its HTML comment, Contributing and Development are excluded. Compatibility notes are not imported: their current text carries internal issue references.",
+  "curation": "Getting started and Configuration quote exact source passages; their titles and introductory navigation are site-authored. README badges, its HTML comment, Contributing and Development are excluded, and compatibility notes are not imported because their current text carries internal issue references. Usage is written on this site as a command reference and checked against the referenced release files.",
   "pages": [
     {
       "slug": "index",
@@ -237,152 +237,14 @@
     {
       "slug": "usage",
       "title": "Usage",
-      "intro": "Talk to your agents, control a room and return to saved conversations.",
-      "sections": [
-        {
-          "id": "conversation",
-          "title": "Addressing agents and answering questions",
-          "passages": [
-            {
-              "file": "docs/usage.md",
-              "start": 48,
-              "end": 64,
-              "heading": "## Conversation",
-              "first": "Send ordinary text to invite every enabled agent to consider it. Prefix a message with `@codex`, `@claude`, or multiple names to direct it. `@human` addresses only you. Directed messages remain public context. Mentions later in the body do not route messages.",
-              "last": "The participant strip shows connection state, considering/replying/tool activity, explicit waiting for you, pauses, and queued or unresolved work. Delivery lines distinguish queued, sent, received, contributed, passed, interrupted, and failed. Receipt is a provider acknowledgment, not a claim about understanding."
-            },
-            {
-              "file": "docs/usage.md",
-              "start": 100,
-              "end": 100,
-              "heading": "### Pins",
-              "first": "Pins are saved with each conversation and survive resume. Pin any human or agent message with `/pin #m1`, remove it with `/unpin #m1`, and use `/pins` to read all pins in conversation order. The browser also has a Pin button on each message and a Pinned messages list with copy, unpin, and go-to-message controls. Pinning and viewing pins do not send messages to agents or change their context.",
-              "last": "Pins are saved with each conversation and survive resume. Pin any human or agent message with `/pin #m1`, remove it with `/unpin #m1`, and use `/pins` to read all pins in conversation order. The browser also has a Pin button on each message and a Pinned messages list with copy, unpin, and go-to-message controls. Pinning and viewing pins do not send messages to agents or change their context."
-            }
-          ]
-        },
-        {
-          "id": "controls",
-          "title": "Pause, stop and recover",
-          "passages": [
-            {
-              "file": "docs/usage.md",
-              "start": 26,
-              "end": 26,
-              "heading": "## Browser interface",
-              "first": "Use the room buttons to pause, stop, continue, or quit. Each agent's `···` button opens its individual controls. Failed and interrupted deliveries have retry buttons; capped exchanges offer additional follow-up turns. All existing slash commands also work. The sidebar opens saved conversations and effective configuration. Configuration changes still require YAML edits and an idle reload. Restored sessions start active; queued messages run as agents connect, while failed and interrupted deliveries still require an explicit retry.",
-              "last": "Use the room buttons to pause, stop, continue, or quit. Each agent's `···` button opens its individual controls. Failed and interrupted deliveries have retry buttons; capped exchanges offer additional follow-up turns. All existing slash commands also work. The sidebar opens saved conversations and effective configuration. Configuration changes still require YAML edits and an idle reload. Restored sessions start active; queued messages run as agents connect, while failed and interrupted deliveries still require an explicit retry."
-            },
-            {
-              "file": "docs/usage.md",
-              "start": 131,
-              "end": 133,
-              "heading": "### Pauses, failures and follow-up turns",
-              "first": "Room and participant pauses are independent. Continuing one participant does not clear a room pause. After a failure, use `/reconnect @name`, `/retry #message @name`, then `/continue @name` (and `/continue` if the room is paused). Completed responses are never automatically retried. Stop does not roll back file or command side effects.",
-              "last": "Each human message starts an exchange with eight shared follow-up turns by default. Initial replies to the human are exempt. Follow-up passes and dispatched failed/interrupted attempts count. A batched turn charges each represented exchange once. An exhausted exchange parks while independent work continues; ordinary `/continue` does not replenish its allowance."
-            }
-          ]
-        },
-        {
-          "id": "browser",
-          "title": "Working in the browser",
-          "passages": [
-            {
-              "file": "docs/usage.md",
-              "start": 20,
-              "end": 24,
-              "heading": "## Browser interface",
-              "first": "The browser provides a shared transcript, Markdown and code blocks, message/code copy buttons, live agent status, and a fixed composer. Normal selection and copy/paste work. Enter sends; Shift+Enter, Ctrl+Enter, or Ctrl+J insert a newline. Leading `@names` autocomplete as you type. Tab completes names, slash commands, and workspace file references. Incoming replies preserve the draft and history position; **Jump to latest** resumes following the conversation.",
-              "last": "Click **Reply** on a message to quote it above the composer, then type and send. Your existing draft stays in place. **Cancel reply** or Escape removes the reply target without discarding your text. The target stays with your draft across refresh and saved-session resume. Sent replies link back to the original message."
-            },
-            {
-              "file": "docs/usage.md",
-              "start": 36,
-              "end": 44,
-              "heading": "### Participants and context usage",
-              "first": "The sidebar shows each agent's provider, configured model, and effort, including disabled agents. `/participants` also shows each enabled agent's current initial-image support (available, not observed, or unsupported) and a safe reason when support is unavailable; disabled agents omit it. Unset model or effort values read `provider default`. In the terminal, `/participants` lists the same settings alongside connection, activity, pause/stop state, queue counts, and any detail or error. It also works in browser chat. Both views reflect settings applied on launch or `/reload`.",
-              "last": "The server binds only to `127.0.0.1` on an available port. Its browser link contains a per-launch access token. The server checks authentication, Host, and Origin for room access. It serves only bundled UI assets; file completion follows the existing workspace boundary. Message HTML and remote images are not rendered. No hosted service or browser-side provider credentials are needed."
-            }
-          ]
-        },
-        {
-          "id": "images",
-          "title": "Images and provider limits",
-          "passages": [
-            {
-              "file": "docs/usage.md",
-              "start": 30,
-              "end": 32,
-              "heading": "### Images",
-              "first": "Paste, drop, or select images with **Attach images**. Pending uploads show filenames; accepted images show previews. Remove or retry failed uploads before sending. Captions are optional, including replies. Leading `@names` still select recipients. When an image is staged for a recipient that can't receive it, the composer shows one line per affected recipient, such as `@antigravity can't receive images`. The warning does not block sending or predict whether a message will be attempted or queued. [Provider and image limits](installation.md#provider-and-image-limits) gives the accepted formats and sizes, browser conversion, which providers can receive images, where the full reason for a warning appears, and what previews and delivery status prove.",
-              "last": "Staged and sent images are saved as host references. Reload or reopen the current browser link to restore them; after restarting the host, open its new link to authenticate image reads. **View image** opens a larger view, and Escape closes it. **Check last action** retries an unknown attachment-send result using its saved identity, including after restart. An interrupted upload can be retried with the same file; the browser retains its operation identity but does not save the image bytes. After a reload, select the original file again: a converted image is converted again and resumes the same upload only when the result matches what was sent."
-            },
-            {
-              "file": "docs/installation.md",
-              "start": 146,
-              "end": 189,
-              "heading": "## Provider and image limits",
-              "first": "Codex, Claude Code and Grok Build use version-sensitive native protocols. A CLI",
-              "last": "image continuity is unavailable."
-            }
-          ]
-        },
-        {
-          "id": "sessions",
-          "title": "Saved conversations",
-          "passages": [
-            {
-              "file": "docs/usage.md",
-              "start": 137,
-              "end": 143,
-              "heading": "## Saved conversations and recovery",
-              "first": "Each `chittr` launch starts a new room. Use `chittr resume` to choose a saved conversation for this directory, or `chittr resume ID` to open one directly. Resuming clears saved room and participant pauses, reconnects enabled agents, and runs eligible queued messages without `/continue`. Failed and interrupted deliveries still need `/retry`; follow-up limits and disabled-agent settings remain in force. This also applies to `--session ID`, web resume, and opening a saved conversation with `/sessions ID`. Cancelling the picker starts no agents and leaves saved chats unchanged; an empty history suggests starting a new chat. The existing `--new` and `--session ID` flags remain supported.",
-              "last": "Grok keeps its native process for consecutive turns. On reconnect or application restart, it starts fresh and discloses restoration from the saved public conversation. It runs in a temporary native profile, which [privacy and permissions](../PRIVACY.md#what-stays-on-your-mac) describes. Grok uses its existing native auth-file location. Your normal Grok settings, hooks and plugins are not loaded into this profile. Put custom guidance in Chittr's YAML [instruction sources](configuration.md#custom-instructions)."
-            }
-          ]
-        },
-        {
-          "id": "compaction",
-          "title": "Compact context",
-          "passages": [
-            {
-              "file": "docs/usage.md",
-              "start": 147,
-              "end": 212,
-              "heading": "## Context compaction",
-              "first": "Use `/compact` for all enabled, connected agents or `/compact @agent` for one.",
-              "last": "and [preview provider limits](installation.md#provider-and-image-limits)."
-            }
-          ]
-        },
-        {
-          "id": "keyboard",
-          "title": "Keyboard and file navigation",
-          "passages": [
-            {
-              "file": "docs/usage.md",
-              "start": 68,
-              "end": 94,
-              "heading": "## Terminal keyboard",
-              "first": "| Key                 | Action                                                                     |",
-              "last": "Type `./` in either composer to open the file explorer at the launch directory. An opening backtick before `./` also works. Keep typing to filter, use Up/Down to choose an entry, and press Enter or Tab to open a folder or insert a file path. You can also click an entry. Selecting a file wraps the entire path in backticks and adds a space after the closing backtick. Folder selections stay open for browsing, with spaces in folder names quoted automatically. Left returns to the parent folder in the CLI; use the Up button or Alt+Up in the web UI. Escape closes the explorer. Files outside the launch directory and symlinks are excluded."
-            }
-          ]
-        },
-        {
-          "id": "commands",
-          "title": "Command reference",
-          "passages": [
-            {
-              "file": "docs/usage.md",
-              "start": 104,
-              "end": 127,
-              "heading": "### Room commands",
-              "first": "| Command                            | Action                                                                             |",
-              "last": "| `/quit`                            | Stop, save, and exit                                                               |"
-            }
-          ]
-        }
+      "intro": "Every command, control and shortcut in a Chittr room.",
+      "file": "pages/usage.md",
+      "references": [
+        "README.md",
+        "docs/configuration.md",
+        "docs/installation.md",
+        "docs/terminal-images.md",
+        "docs/usage.md"
       ]
     }
   ]
