@@ -7,6 +7,8 @@ export const markdown = new MarkdownIt({ html: false, linkify: false, typographe
 const escape = markdown.utils.escapeHtml;
 export const blobHash = (text) => createHash('sha1').update(`blob ${Buffer.byteLength(text)}\0`).update(text).digest('hex');
 
+const sourceFile = /^(README\.md|docs\/(installation|compatibility|configuration|usage|terminal-images)\.md)$/;
+
 export function validateMap(map) {
   if (map.repository !== 'chittr/chittr' || !/^v\d+\.\d+\.\d+(?:[-.][a-zA-Z0-9.-]+)?$/.test(map.tag) || !/^[a-f0-9]{40}$/.test(map.commit)) {
     throw new Error('Expected chittr/chittr, an explicit release tag and a full commit SHA');
@@ -15,16 +17,40 @@ export function validateMap(map) {
   for (const page of map.pages) {
     if (!/^(index|configuration|usage)$/.test(page.slug) || ids.has(page.slug)) throw new Error('Invalid or duplicate guide page');
     ids.add(page.slug);
+    if (page.file !== undefined) {
+      // Site-authored page: written here, and checked against the pinned release files it references.
+      if (!/^pages\/[a-z-]+\.md$/.test(page.file) || page.sections !== undefined) throw new Error('Invalid site-authored page');
+      for (const file of page.references ?? []) if (!sourceFile.test(file)) throw new Error('Unexpected guide source');
+      continue;
+    }
     const sections = new Set();
     for (const section of page.sections) {
       if (!/^[a-z][a-z0-9-]*$/.test(section.id) || sections.has(section.id)) throw new Error('Invalid or duplicate section');
       sections.add(section.id);
       for (const part of section.passages) {
-        if (!/^(README\.md|docs\/(installation|compatibility|configuration|usage)\.md)$/.test(part.file)) throw new Error('Unexpected guide source');
+        if (!sourceFile.test(part.file)) throw new Error('Unexpected guide source');
       }
     }
   }
   if (ids.size !== 3) throw new Error('The guide requires all three entry points');
+}
+
+export const passages = (map) => map.pages.flatMap((page) => page.file ? [] : page.sections.flatMap((section) => section.passages));
+
+// A site-authored page is Markdown whose `## Title {#id}` headings start its sections.
+export function parseSitePage(text) {
+  const lines = text.split('\n');
+  const headings = markdown.parse(text, {}).filter((token) => token.type === 'heading_open');
+  if (headings.some((token) => token.tag === 'h1')) throw new Error('Site-authored pages take their title from the source map');
+  const starts = headings.filter((token) => token.tag === 'h2').map((token) => token.map[0]);
+  if (!starts.length || lines.slice(0, starts[0]).some((line) => line.trim())) throw new Error('Site-authored pages start with a section heading');
+  const ids = new Set();
+  return starts.map((start, i) => {
+    const match = /^## (.+) \{#([a-z][a-z0-9-]*)\}$/.exec(lines[start]);
+    if (!match || ids.has(match[2])) throw new Error(`Section heading needs a unique {#id}: ${lines[start]}`);
+    ids.add(match[2]);
+    return { id: match[2], title: match[1], markdown: lines.slice(start + 1, starts[i + 1]).join('\n') };
+  });
 }
 
 export function selectPassage(part, sources) {
@@ -89,8 +115,8 @@ function walk(tokens, visit) {
 }
 
 export function requiredTargets(map, sources) {
-  const files = new Set(['LICENSE']);
-  for (const page of map.pages) for (const section of page.sections) for (const part of section.passages) {
+  const files = new Set(['LICENSE', ...map.pages.flatMap((page) => page.references ?? [])]);
+  for (const part of passages(map)) {
     files.add(part.file);
     walk(markdown.parse(selectPassage(part, sources), {}), (token) => {
       if (token.type === 'link_open') {
@@ -118,6 +144,19 @@ function renderPassage(part, sources, map) {
   return markdown.renderer.render(tokens, markdown.options, {});
 }
 
+function renderSite(text) {
+  const tokens = markdown.parse(text, {});
+  walk(tokens, (token) => {
+    // Site-authored pages link to other guide pages or vendor documentation, never to app source files.
+    if (token.type === 'link_open') {
+      const href = token.attrGet('href');
+      if (!/^(\/guide\/|#|https:\/\/)/.test(href) || /^https:\/\/(www\.)?github\.com\//.test(href)) throw new Error(`Unsupported site link: ${href}`);
+    }
+    if (token.type === 'image') throw new Error('Site-authored pages do not embed images');
+  });
+  return markdown.renderer.render(tokens, markdown.options, {});
+}
+
 const fence = markdown.renderer.rules.fence;
 markdown.renderer.rules.fence = (tokens, index, options, env, self) => `<div class="guide-code" data-copy>${fence(tokens, index, options, env, self)}<button class="copy" type="button" hidden aria-label="Copy example">Copy</button><span class="copy-status" role="status"></span></div>`;
 markdown.renderer.rules.table_open = () => '<div class="guide-table" role="region" aria-label="Reference table" tabindex="0"><table>\n';
@@ -135,14 +174,23 @@ export async function loadGuide(root = guideRoot) {
     if (blobHash(sources[file]) !== hash) throw new Error(`Changed upstream snapshot: ${file}`);
   }
   requiredTargets(map, sources);
-  return { map, sources };
+  return { map, sources, site: await loadSite(map, root) };
 }
 
-export function renderGuide(map, sources, page) {
+export async function loadSite(map, root = guideRoot) {
+  const site = {};
+  for (const page of map.pages) if (page.file) site[page.file] = await readFile(new URL(page.file, root), 'utf8');
+  return site;
+}
+
+export function renderGuide(map, sources, page, site = {}) {
   const url = (item) => item.slug === 'index' ? '/guide/' : `/guide/${item.slug}/`;
   const navigation = map.pages.map((item) => `<a href="${url(item)}"${item === page ? ' aria-current="page"' : ''}>${escape(item.title)}</a>`).join('');
-  const contents = page.sections.map((section) => `<li><a href="#${section.id}">${escape(section.title)}</a></li>`).join('');
-  const sections = page.sections.map((section) => `<section id="${section.id}" class="guide-section"><h2><a href="#${section.id}">${escape(section.title)}</a></h2>${section.passages.map((part) => renderPassage(part, sources, map)).join('\n')}<p class="source-ref">Release source: ${section.passages.map((part) => `<a href="https://github.com/${map.repository}/blob/${map.commit}/${part.file}#L${part.start}-L${part.end}">${escape(part.file)} · ${part.start}–${part.end}</a>`).join(' · ')}</p></section>`).join('\n');
+  if (page.file && site[page.file] === undefined) throw new Error(`Missing site-authored page: ${page.file}`);
+  const parts = page.file ? parseSitePage(site[page.file]) : page.sections;
+  const body = (section) => page.file ? renderSite(section.markdown) : section.passages.map((part) => renderPassage(part, sources, map)).join('\n');
+  const contents = parts.map((section) => `<li><a href="#${section.id}">${escape(section.title)}</a></li>`).join('');
+  const sections = parts.map((section) => `<section id="${section.id}" class="guide-section"><h2><a href="#${section.id}">${escape(section.title)}</a></h2>${body(section)}</section>`).join('\n');
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>${escape(page.title)} · Chittr guide</title><meta name="description" content="${escape(page.intro)}"><link rel="icon" href="/assets/chittr.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/guide.css"><script src="/copy.js" defer></script></head>
 <body class="guide-page"><a class="skip" href="#main">Skip to content</a>
